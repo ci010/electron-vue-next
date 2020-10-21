@@ -24,10 +24,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12
-    - name: Get npm cache directory
-      id: npm-cache
-      run: |
-        echo "::set-output name=dir::$(npm config get cache)"
+    # - name: Get npm cache directory
+    #   id: npm-cache
+    #   run: |
+    #     echo "::set-output name=dir::$(npm config get cache)"
     # - uses: actions/cache@v1
     #   with:
     #     path: ${{ steps.npm-cache.outputs.dir }}
@@ -38,8 +38,8 @@ jobs:
       run: |
         npm ci
     - name: Get Build Number
-      uses: ./.github/actions/get-build-number
       id: vars
+      uses: ./.github/actions/get-build-number
     - name: Build
       run: |
         npm run build:production
