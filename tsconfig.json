@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "incremental": true, 
+    "target": "ESNext", 
+    "module": "CommonJS", 
+    "declaration": true, 
+    "declarationMap": true, 
+    "sourceMap": true, 
+    "rootDir": "./src", 
+    "outDir": "./dist/electron",
+    "downlevelIteration": true, 
+    "resolveJsonModule": true,
+    "strict": true, 
+    "moduleResolution": "node", 
+    "baseUrl": ".", 
+    "paths": {
+      "/@shared/*": [
+        "src/shared/*"
+      ],
+      "/@/*": [
+        "src/renderer/*"
+      ],
+      "/@main/*": [
+        "src/main/*"
+      ]
+    }, 
+    "esModuleInterop": true, 
+    "experimentalDecorators": true, 
+    "skipLibCheck": true, 
+    "forceConsistentCasingInFileNames": true 
+  },
+  "include": [
+    "src/main/**/*",
+    "src/shared/**/*",
+    "src/renderer/type.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

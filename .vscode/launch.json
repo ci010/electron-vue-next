@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Electron: Main (attach)",
+            "type": "node",
+            "request": "attach",
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "smartStep": true,
+            "sourceMaps": true,
+            "protocol": "inspector",
+            "port": 5858,
+            "timeout": 20000
+        },
+        {
+            "name": "Electron: Renderer (attach)",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}",
+            "timeout": 15000
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Electron: Main & Renderer (attach)",
+            "configurations": ["Electron: Main (attach)", "Electron: Renderer (attach)"]
+        }
+    ]
+}
