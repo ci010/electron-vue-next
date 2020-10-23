@@ -1,0 +1,20 @@
+{
+    "editor.tabSize": 2,
+    "eslint.options": {
+        "extensions": [
+            ".js",
+            ".jsx"
+        ]
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue"
+    ],
+    "vetur.format.defaultFormatter.js": "vscode-typescript",
+    "vetur.validation.templateProps": true,
+    "vetur.experimental.templateInterpolationService": true,
+    "vetur.format.defaultFormatter.ts": "vscode-typescript",
+}
