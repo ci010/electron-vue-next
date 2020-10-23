@@ -144,7 +144,6 @@ jobs:
       uses: ci010/conventional-changelog-action@master
       with:
         github-token: ${{ secrets.github_token }}
-        version: ${{ steps.package.outputs.version }}
         tag-prefix: 'v'
     - name: Draft Release
       id: create_release
@@ -152,8 +151,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ format('v{0}', steps.prepare_release.outputs.version) }}
-        release_name: ${{ format('v{0}', steps.prepare_release.outputs.version) }}
+        tag_name: ${{ format('v{0}', steps.package.outputs.version) }}
+        release_name: ${{ format('v{0}', steps.package.outputs.version) }}
         draft: false
         prerelease: false
         body: ${{ steps.prepare_release.outputs.clean_changelog }}
