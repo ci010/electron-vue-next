@@ -19,12 +19,19 @@
       <p>Click below button to checkout vue reactivity</p>
       <sum-equation />
     </div>
+    <div class="card" >
+      <h2>Vuex Store</h2>
+      <p> count: {{ count }} </p>
+      <div class="flex">
+        <div class="card clickable" @click="increment">Click To Increment by Commit</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
-import { useClipboard, useShell, useDialog } from '../hooks'
+import { useClipboard, useShell, useDialog, useCount } from '../hooks'
 import SumEquation from './SumEquation.vue'
 
 export default defineComponent({
@@ -33,7 +40,6 @@ export default defineComponent({
   },
   setup(props, context) {
     const data = reactive({
-      count: 0,
       contentToCopy: 'hello, you will copy/paste this piece of text!',
       filePath: ''
     })
@@ -56,6 +62,7 @@ export default defineComponent({
     }
     return {
       ...toRefs(data),
+      ...useCount(),
       name,
       copyToClipboard,
       showItem,

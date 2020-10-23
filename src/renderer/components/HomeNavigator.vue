@@ -1,7 +1,6 @@
 <template>
   <div class="sidebar">
     <router-link class="clickable" replace to="/"> Basic </router-link>
-    <router-link class="clickable" replace to="/store"> Advance </router-link>
     <router-link class="clickable" replace to="/about"> About </router-link>
   </div>
 </template>

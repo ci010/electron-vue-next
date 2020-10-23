@@ -4,12 +4,6 @@ This repository contains the starter template for using vue-next with the latest
 
 *I started to learn electron & vue by the great project [electron-vue](https://github.com/SimulatedGREG/electron-vue). This project is also inspired from it.*
 
-This repo is still **WIP**. 
-I'm still working on validating the release process of this repo, and the documentation might not be completed.
-
-If you familiar with electron and vue and don't need example to demostrate how to use it.
-You can just start to use this!
-
 ## Features
 
 - Electron 10
@@ -35,7 +29,7 @@ You can just start to use this!
   - This need to wait vite support [#257](https://github.com/vitejs/vite/issues/257)
   - Currently, all workarounds I can come up with are all ugly and not ideal enough...
 - Make tsconfig.json less confusing
-  - Due to the Vetur limitation (only the root tsconfig.json is used for vetur), the current root tsconfig.json might be confusing
+  - Due to the Vetur [limitation](https://github.com/vuejs/vetur/issues/424) (only the root tsconfig.json is used for vetur), the current root tsconfig.json might be confusing
 - [vue-devtool](https://github.com/vuejs/vue-devtools) support
   - Currently the devtool is still WIP and not support vuex/router...
   - Wait until it has great support for vuex and router to add it
@@ -71,6 +65,19 @@ Due to the project is following the [security](https://www.electronjs.org/docs/t
 
 Once you install your project, you should change the package base info in [package.json](/package.json),
 and also the build information in [build.base.config.js](/scripts/build.base.config.js)
+
+#### assets, static resources, build resources... what's the difference?
+
+The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](src/renderer/assets)
+
+The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [static](static).
+
+The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [build/icons](build/icons).
+
+*Notice that your program icon can show up in multiple place! Don't mixup them!*
+- *In build icons, of course you want your program has correct icon.*
+- *In static directory, sometime you want your program has **tray** which require icon in static directory.*
+- *In assets, sometime you want to display your program icon inside a page. You need to place them in the assets!*
 
 ### Debug In VSCode
 

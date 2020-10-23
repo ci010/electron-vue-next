@@ -13,10 +13,9 @@ const config = {
       }
     ],
     files: [
-      'node_modules/7zip-bin/**/*',
-      '!dist/electron/static/Acrylic.cs',
-      '!node_modules/7zip-bin/linux/**',
-      '!node_modules/7zip-bin/win/**'
+      // 'node_modules/7zip-bin/**/*',
+      // '!node_modules/7zip-bin/linux/**',
+      // '!node_modules/7zip-bin/win/**'
     ]
   },
   win: {
@@ -31,9 +30,9 @@ const config = {
       }
     ],
     files: [
-      'node_modules/7zip-bin/**/*',
-      '!node_modules/7zip-bin/linux/**',
-      '!node_modules/7zip-bin/mac/**'
+      // 'node_modules/7zip-bin/**/*',
+      // '!node_modules/7zip-bin/linux/**',
+      // '!node_modules/7zip-bin/mac/**'
     ]
   },
   linux: {
@@ -44,10 +43,9 @@ const config = {
       }
     ],
     files: [
-      'node_modules/7zip-bin/**/*',
-      '!dist/electron/static/Acrylic.cs',
-      '!node_modules/7zip-bin/win/**',
-      '!node_modules/7zip-bin/mac/**'
+      // 'node_modules/7zip-bin/**/*',
+      // '!node_modules/7zip-bin/win/**',
+      // '!node_modules/7zip-bin/mac/**'
     ]
   }
 }
