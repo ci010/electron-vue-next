@@ -34,7 +34,7 @@ function startElectron() {
       } if (line.startsWith('[ERROR]')) {
         return chalk.red('[ERROR]') + line.substring(7)
       }
-      return line
+      return chalk.grey('[console] ') + line
     }
     console.log(data.toString().split(/\r?\n/).filter(s => s.trim() !== '')
       .map(colorize).join('\n'))
