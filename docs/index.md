@@ -57,40 +57,35 @@ and also the build information in [build.base.config.js](/scripts/build.base.con
 
 Your workspace should looks like
 
-```tree
+```
 your-project
-├─ .electron-vue
-│  └─ <build/development>.js files
-├─ build
-│  └─ icons/
-|  └─ ... your built installer zip goes here!
+├─ scripts                 all dev scripts, build script directory
+├─ build                   build resource and output directory
+│  └─ icons/               build icon directory
 ├─ dist
-│  ├─ electron/    The directory contain the compiled output
-│  └─ web/
+│  └─ electron/            compiled output directory
 ├─ src
 │  ├─ main
-│  │  ├─ index.dev.js
-│  │  └─ index.js
+│  │  ├─ dialog.ts         the ipc handler to support dialog API from renderer process
+│  │  ├─ global.ts         typescript global definition
+│  │  ├─ index.dev.ts      the development rollup entry
+│  │  ├─ index.prod.ts     the production rollup entry
+│  │  ├─ index.ts          real electron start-up entry file
+│  │  ├─ logger.ts         a simple logger implementation
+│  │  └─ staticStore.ts
 │  ├─ renderer
-│  │  ├─ components/
-│  │  ├─ router/
-│  │  ├─ store/
-│  │  ├─ App.vue
-│  │  └─ main.js
-│  └─ index.ejs
-├─ static/
-├─ test
-│  ├─ e2e
-│  │  ├─ specs/
-│  │  ├─ index.js
-│  │  └─ utils.js
-│  ├─ unit
-│  │  ├─ specs/
-│  │  ├─ index.js
-│  │  └─ karma.config.js
-│  └─ .eslintrc
-├─ .babelrc
-├─ .eslintignore
+│  │  ├─ components/       assets directoy
+│  │  ├─ components/       all components
+│  │  ├─ router.ts         vue-router initializer
+│  │  ├─ store.ts          vuex store initializer
+│  │  ├─ App.vue           entry vue file imported by index.ts
+│  │  ├─ index.css         entry css file for vite
+│  │  ├─ index.html        entry html file for vite
+│  │  └─ index.ts          entry script file for vite
+│  └─ shared               shared folder can be access from both main and renderer side
+│     ├─ store/            vuex store definition
+│     └─ sharedLib.ts      an example file that can be access from both side
+├─ static/                 static resource directory
 ├─ .eslintrc.js
 ├─ .gitignore
 ├─ package.json
@@ -121,6 +116,13 @@ And the renderer process is about
 
 > - The Renderer process manages only the corresponding web page. A crash in one Renderer process does not affect other Renderer processes.
 > - The Renderer process communicates with the Main process via IPC to perform GUI operations in a web page. Calling native GUI-related APIs from the Renderer process directly is restricted due to security concerns and potential resource leakage.
+
+Commonly, the main process is about your core business logic, and renderer side act as a data consumer to render the UI.
+
+Following the [security](https://www.electronjs.org/docs/tutorial/security) guideline of electron, in this boilerplate, the renderer process [**does not** have access to nodejs module by default](https://www.electronjs.org/docs/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content). The electron provide the `preload` options in `webPreferences`. In this boilerplate, I suggest you to wrap your core logic into `Service`. 
+
+The `Service` is a type of class defined under the `src/main/services`. All the public method can be access by the renderer process.
+It's the bridge between the main and renderer. You can look at [Writing Service](#writing-service) for the detail about how to add a new service, and the [Using Service in Renderer](#using-service-in-renderer)
 
 ### NPM Scripts
 
@@ -153,9 +155,71 @@ Run eslint to fix and report eslint error.
 
 ## Development
 
-### Using NodeJS in Renderer
-
 Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. You should use [Service](/src/main/services/Service.ts) to encapsulate your nodejs operation and use the hook `useService('NameOfService')` to use in renderer side.
+
+### Writing Service
+
+
+
+### Using Electron API in Renderer
+
+The boilplate exposes several electron APIs by default. You can access them by `useShell`, `useClipboard`, `useIpc` and `useDialog`.
+
+```ts
+import { defineComponent } from 'vue'
+import { useShell } from '/@/hooks'
+
+export default defineComponent({
+  setup() {
+    const shell = useShell() // this is equivalence to the import { shell } from 'electron' normally
+    // the shell object type definition works normally
+  }
+})
+```
+
+The only exception is the `useDialog`. You can only use `async` functions in it as the API call goes through IPC and it must be async:
+
+### Using Service in Renderer
+
+You can directly access all the async methods in a service class by `useService('nameOfService')`
+
+Here is an example in [About.vue](), using the `BaseService`.
+
+```vue
+<template>
+  <div>
+    <img alt="Vue logo" src="../assets/logo.png" />
+    <div>Electron Version: {{ version }} </div>
+    <div>Appdata Path: {{ path }} </div>
+    <div>Running Platform: {{ platform }} </div>
+  </div>
+</template>
+
+<script lang=ts>
+import { defineComponent, reactive, toRefs } from 'vue'
+import { useService } from '../hooks'
+
+export default defineComponent({
+  setup() {
+    const { getBasicInformation } = useService('BaseService')
+    const data = reactive({
+      version: '',
+      path: '',
+      platform: ''
+    })
+    getBasicInformation().then(({ version, platform, root }) => {
+      data.version = version
+      data.path = root
+      data.platform = platform
+    })
+    return {
+      ...toRefs(data)
+    }
+  }
+})
+</script>
+```
+
 
 ### Adding New Dependencies
 
