@@ -159,7 +159,57 @@ Due to the project is following the [security](https://www.electronjs.org/docs/t
 
 ### Writing Service
 
+To write a service, you 
 
+Add a file to the `/src/main/services` named `BarService.ts`
+
+```ts
+export default class BarService extends Service {
+  async doSomeCoreLogic() {
+    // perform some file system or network work here
+  }
+}
+```
+
+And you need to add it to the `interface Services` in `src/main/services/index.ts`.
+
+```ts
+import { BarService } from './BarService'
+
+export interface Services {
+  // ... other existed services
+  BarService: BarService
+}
+```
+
+Then, add it to the `initializeServices` in `src/main/index.ts`
+
+```ts
+async function initializeServices(logger: Logger) {
+  initialize({
+    // ...other services
+    BarService: new BarService(logger)
+  })
+}
+```
+
+And this is ready to be used in renderer process by `useService('BarService')`. See [Using Service in Renderer](#using-service-in-renderer).
+
+#### Using Other Service in a Service
+
+If you need to use other `Service`, like `FooService`. You need to `@Inject` decorator to inject during runtime.
+
+```ts
+export default class BarService extends Service {
+  @Inject('FooService')
+  private fooService: FooService
+
+  async doSomeCoreLogic() {
+    const result = await fooService.foo()
+    // perform some file system or network work here
+  }
+}
+```
 
 ### Using Electron API in Renderer
 
