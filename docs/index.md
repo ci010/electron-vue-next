@@ -269,7 +269,65 @@ export default defineComponent({
 })
 </script>
 ```
+#### hooks or composable
 
+One great feature of vue 3 is the [composition-api](https://composition-api.vuejs.org/). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in [/src/renderer/hooks](/src/renderer/hooks) by default.
+
+Take the example from vue composition api site, you have such code in `/src/renderer/hooks/mouse.ts`
+
+```ts
+import { ref, onMounted, onUnmounted } from 'vue'
+
+export function useMousePosition() {
+  const x = ref(0)
+  const y = ref(0)
+
+  function update(e) {
+    x.value = e.pageX
+    y.value = e.pageY
+  }
+
+  onMounted(() => {
+    window.addEventListener('mousemove', update)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('mousemove', update)
+  })
+
+  return { x, y }
+}
+```
+
+You'd better to export this `mouse.ts` to `/src/renderer/hooks/index.ts`
+
+```ts
+// other exports...
+
+export * from './mouse.ts'
+```
+
+Then in the `vue` file you can import all hooks by the alias
+
+```vue
+<template>
+  ...template content
+</template>
+<script lang=ts>
+import { defineComponent } from 'vue'
+import { useMousePosition } from '/@/hooks'
+
+export default defineComponent({
+  setup() {
+    const { x, y } = useMousePosition()
+    // other logic
+    return { x, y }
+  }
+})
+</script>
+```
+
+You can import them by the alias
 
 ### Adding New Dependencies
 
@@ -397,6 +455,7 @@ To optimize for multi-platform, you should also exclude them from `files` of eac
     ]
   },
 ```
+
 ## Release
 
 The out-of-box github action will validate each your PR by eslint and run `npm run build`. It will not trigger electron-builder to build production assets.
