@@ -68,11 +68,11 @@ and also the build information in [build.base.config.js](/scripts/build.base.con
 
 #### assets, static resources, build resources... what's the difference?
 
-The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](src/renderer/assets)
+The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [/src/renderer/assets](src/renderer/assets)
 
-The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [static](static).
+The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [/static](static).
 
-The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [build/icons](build/icons).
+The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [/build/icons](build/icons).
 
 *Notice that your program icon can show up in multiple place! Don't mixup them!*
 - *In build icons, of course you want your program has correct icon.*
@@ -94,7 +94,7 @@ You should first run `npm run dev` and start debugging by the vscode debug.
 
 ### Adding New Dependencies
 
-If you adding new dependenceis, make sure if it using nodejs module, add it as `exclude` in the [vite.config.js](/scripts/vite.config.js). Otherwise, the vite will complain about "I cannot optimize it!".
+If you adding new dependenceis, make sure if it using nodejs module, add it as `exclude` in the [/scripts/vite.config.js](/scripts/vite.config.js). Otherwise, the vite will complain about "I cannot optimize it!".
 
 The raw javascript dependencies are okay for vite.
 
@@ -105,7 +105,7 @@ If you want to use the native dependencies, not only you should adding it to vit
 For example, [7zip-min](https://github.com/onikienko/7zip-min):
 
 Since it using the `7zip-bin` which carry binary for multiple platform, we need to correctly include them in config.
-Modify the electron-builder build script [build.base.config.js](/scripts/build.base.config.js)
+Modify the electron-builder build script [/scripts/build.base.config.js](/scripts/build.base.config.js)
 
 ```js
   files: [
@@ -120,7 +120,7 @@ Modify the electron-builder build script [build.base.config.js](/scripts/build.b
 
 Add them to `files` and `asarUnpack` to ensure the electron builder correctly pack & unpack them.
 
-To optimize for multi-platform, you should also exclude them from `files` of each platform config [build.config.js](/scripts/build.config.js)
+To optimize for multi-platform, you should also exclude them from `files` of each platform config [/scripts/build.config.js](/scripts/build.config.js)
 
 ```js
   mac: {
@@ -159,4 +159,4 @@ It using the conventional-commit. If you want to auto-generate the changelog, yo
 
 If the **bump version PR** is approved and merged to master, it will auto build and release to github release.
 
-**If you want to disable this github action release process, just remove the [.github/workflows/build.yml](/.github/workflows/build.yml) file.**
+**If you want to disable this github action release process, just remove the [/.github/workflows/build.yml](/.github/workflows/build.yml) file.**
