@@ -349,11 +349,11 @@ The raw javascript dependencies are okay for vite.
 
 #### Native Dependencies
 
-If you want to use the native dependencies, which need to compile when install. Usually, you need [node-gyp](https://github.com/nodejs/node-gyp) to build, the electron will rebuild it upon your electron for you. Normally you don't need to worry much. Notice that if you are in Windows, you might want to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) to install the compile toolchain.
+If you want to use the native dependencies, which need to compile when install. Usually, you need [node-gyp](https://github.com/nodejs/node-gyp) to build, the `electron-builder` will rebuild it upon your electron for you. Normally you don't need to worry much. Notice that if you are in Windows, you might want to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) to install the compile toolchain.
 
 #### Dependencies Contains Compiled Binary
 
-If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build Configuration](#build-configuration) section for detail.
+If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail.
 
 ## Debugging
 
@@ -407,7 +407,17 @@ You should first run `npm run dev` and start debugging by the vscode debug.
 
 ## Build
 
-### Exclude Files
+The project build is based on [electron-builder](https://github.com/electron-userland/electron-builder). The config file is majorly in [scripts/build.base.config.js](../scripts/build.base.config.js). And you can refer the electron-builder [document](https://www.electron.build/).
+
+### Compile Process
+
+The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/rollup.config.js). It will output the production code to `dist/electron/index.prod.js`.
+
+The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/vite.config.js). It will compile the production code into `dist/electron/renderer/*`.
+
+### Build Exclude Files
+
+Normally, once you correctly config the `dependencies` in [Development](#development) section, you should not worry to much about the build. But some dependencies contains compiled binary. You might want to exclude them out of the unrelated OS builds.
 
 For example, [7zip-min](https://github.com/onikienko/7zip-min):
 
