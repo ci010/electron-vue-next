@@ -70,9 +70,9 @@ function reloadElectron() {
 /**
  * Start vite dev server for renderer process and listen 8080 port
  */
-function startRenderer() {
+async function startRenderer() {
   const config = require('./vite.config')
-  createServer(config).listen(8080)
+  await createServer(config).listen(8080)
 }
 
 async function startMain() {
@@ -103,5 +103,7 @@ async function startMain() {
   })
 }
 
-startMain()
-startRenderer()
+Promise.all([
+  startMain(),
+  startRenderer(),
+]).catch(console.error)
