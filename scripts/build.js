@@ -2,7 +2,7 @@ const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk').default
 const { build: electronBuilder } = require('electron-builder')
-const { move, stat, remove, copy } = require('fs-extra')
+const { stat, remove, copy } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 
@@ -58,25 +58,9 @@ async function buildRenderer() {
  * @param {boolean} dir Use dir mode to build
  */
 async function buildElectron(config, dir) {
-  /**
-   * Rename files so the real name aligns to the url in github assets
-   * @param {string[]} files
-   */
-  async function renameFiles(files) {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      if (file.indexOf(' ') !== -1) {
-        const from = file
-        const to = file.replace(/ /g, '-')
-        await move(from, to, { overwrite: true })
-        files[i] = to
-      }
-    }
-    return files
-  }
   console.log(chalk.bold.underline('Build electron'))
   const start = Date.now()
-  await electronBuilder({ publish: 'never', config, dir }).then(renameFiles).then(async (files) => {
+  await electronBuilder({ publish: 'never', config, dir }).then(async (files) => {
     for (const file of files) {
       const fstat = await stat(file)
       console.log(`${chalk.gray('[write]')} ${chalk.yellow(file)} ${(fstat.size / 1024 / 1024).toFixed(2)}mb`)

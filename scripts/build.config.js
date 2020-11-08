@@ -6,6 +6,8 @@ const baseConfig = require('./build.base.config')
 const config = {
   ...baseConfig,
   nsis: {
+    // eslint-disable-next-line no-template-curly-in-string
+    artifactName: '${productName}-Setup-${version}.${ext}',
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     perMachine: true,
@@ -49,13 +51,11 @@ const config = {
       //   target: 'nsis-web',
       //   arch: [
       //     'x64',
-      //     'ia32'
       //   ]
       // },
       {
         target: 'zip',
         arch: [
-          // 'ia32',
           'x64'
         ]
       }
