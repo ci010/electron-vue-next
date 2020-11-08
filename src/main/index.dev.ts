@@ -1,6 +1,7 @@
 import { app } from 'electron'
+import {join} from 'path'
 
-global.__static = require('path').join(__dirname, '../../static').replace(/\\\\/g, '\\\\\\\\')
+global.__static = join(__dirname, '../../static').replace(/\\\\/g, '\\\\\\\\')
 global.__windowUrls = new Proxy({}, {
   get(_, page) {
     return `http://localhost:8080/${page.toString()}.html`
