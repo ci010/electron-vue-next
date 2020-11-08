@@ -2,7 +2,7 @@ const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk').default
 const { build: electronBuilder } = require('electron-builder')
-const { move, readdir, stat, remove, copy } = require('fs-extra')
+const { move, stat, remove, copy } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 
@@ -60,15 +60,19 @@ async function buildRenderer() {
 async function buildElectron(config, dir) {
   /**
    * Rename files so the real name aligns to the url in github assets
+   * @param {string[]} files
    */
-  async function renameFiles(s) {
-    const files = await readdir('build')
-    for (const file of files) {
+  async function renameFiles(files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
       if (file.indexOf(' ') !== -1) {
-        await move(`build/${file}`, `build/${file.replace(/ /g, '-')}`)
+        const from = file
+        const to = file.replace(/ /g, '-')
+        await move(from, to, { overwrite: true })
+        files[i] = to
       }
     }
-    return s
+    return files
   }
   console.log(chalk.bold.underline('Build electron'))
   const start = Date.now()
