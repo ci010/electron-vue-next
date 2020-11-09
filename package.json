@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "electron-updater": "^4.3.5",
     "vue": "^3.0.0-rc.10",
     "vue-router": "^4.0.0-beta.13",
     "vuex": "^4.0.0-beta.4"

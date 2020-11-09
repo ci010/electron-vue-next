@@ -13,6 +13,7 @@ const config = {
   },
   optimizeDeps: {
     exclude: [
+      'electron-updater'
       // exclude the module with nodejs dependencies
     ]
   }
