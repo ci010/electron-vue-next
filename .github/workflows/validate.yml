@@ -16,12 +16,8 @@ jobs:
       run: |
         npm ci
     - name: Lint
-      uses: mrdivyansh/eslint-action
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        eslint-rc: .eslintrc.js
-        execute-on-files:
-            - ./src
+      run: |
+        npm run lint
     - name: Build
       run: |
         npm run build
