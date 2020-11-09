@@ -2,7 +2,7 @@ const electron = require('electron')
 const { spawn } = require('child_process')
 const { join } = require('path')
 const { createServer } = require('vite')
-const chalk = require('chalk').default
+const chalk = require('chalk')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 
@@ -93,10 +93,16 @@ async function startMain() {
   })
 
   watcher.on('event', (event) => {
-    if (event.code === 'END') {
-      reloadElectron()
-    } else if (event.code === 'BUNDLE_END') {
-      console.log(`${chalk.grey('[bundle]')} ${event.output} ${event.duration + 'ms'}`)
+    switch (event.code) {
+      case 'END':
+        reloadElectron()
+        break
+      case 'BUNDLE_END':
+        console.log(`${chalk.grey('[bundle]')} ${event.output} ${event.duration + 'ms'}`)
+        break
+      case 'ERROR':
+        console.error(event.error)
+        break
     }
   }).on('change', (id) => {
     console.log(`${chalk.grey('[change]')} ${id}`)
@@ -105,5 +111,5 @@ async function startMain() {
 
 Promise.all([
   startMain(),
-  startRenderer(),
+  startRenderer()
 ]).catch(console.error)
