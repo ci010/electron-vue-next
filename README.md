@@ -64,7 +64,7 @@ Due to the project is following the [security](https://www.electronjs.org/docs/t
 ### Config Your Project and Build
 
 Once you install your project, you should change the package base info in [package.json](/package.json),
-and also the build information in [build.base.config.js](/scripts/build.base.config.js)
+and also the build information in [/scripts/build.base.config.js](/scripts/build.base.config.js)
 
 #### assets, static resources, build resources... what's the difference?
 
