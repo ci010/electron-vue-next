@@ -5,10 +5,11 @@ const { createServer } = require('vite')
 const chalk = require('chalk')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
+const { EOL } = require('os')
 
 const manualRestart = false
 
-const processes = {
+const child = {
   /**
    * @type {import('child_process').ChildProcessWithoutNullStreams  | null}
    */
@@ -22,9 +23,8 @@ const processes = {
   /**
    * @type {import('rollup').RollupWatcher  | null}
    */
-  rollupWatcher: null,
+  rollupWatcher: null
 }
-
 
 /**
  * Start electron process and inspect port 5858 with 9222 as debug port.
@@ -34,9 +34,8 @@ function startElectron() {
    * @type {any}
    */
   const electronCommand = electron
-  const process = spawn(electronCommand,
+  child.electron = spawn(electronCommand,
     ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')])
-
 
   /**
    * @param {string | Buffer} data
@@ -52,13 +51,17 @@ function startElectron() {
       }
       return chalk.grey('[console] ') + line
     }
-    console.log(data.toString().split(/\r?\n/).filter(s => s.trim() !== '')
-      .map(colorize).join('\n'))
+    console.log(
+      data.toString()
+        .split(EOL)
+        .filter(s => s.trim() !== '')
+        .map(colorize).join(EOL)
+    )
   }
-  process.stdout.on('data', electronLog)
-  process.stderr.on('data', electronLog)
+  child.electron.stdout.on('data', electronLog)
+  child.electron.stderr.on('data', electronLog)
 
-  process.on('close', () => {
+  child.electron.on('close', () => {
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
@@ -66,17 +69,14 @@ function startElectron() {
       stop()
     }
   })
-
-  processes.electron = process
 }
-
 
 /**
  * Kill and restart electron process
  */
 function reloadElectron() {
-  if (processes.electron) {
-    processes.electron.kill()
+  if (child.electron) {
+    child.electron.kill()
     console.log(chalk.bold.underline.green('Electron App Restarted'))
   } else {
     console.log(chalk.bold.underline.green('Electron App Started'))
@@ -89,9 +89,8 @@ function reloadElectron() {
  */
 async function startRenderer() {
   const config = require('./vite.config')
-  processes.viteServer = await createServer(config).listen(8080)
+  child.viteServer = await createServer(config).listen(8080)
 }
-
 
 async function startMain() {
   const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
@@ -103,14 +102,14 @@ async function startMain() {
    * @type {import('rollup').RollupOptions}
    */
   const config = options[0]
-  processes.rollupWatcher = watch({
+  child.rollupWatcher = watch({
     ...config,
     watch: {
       buildDelay: 500
     }
   })
 
-  processes.rollupWatcher.on('event', (event) => {
+  child.rollupWatcher.on('event', (event) => {
     switch (event.code) {
       case 'END':
         reloadElectron()
@@ -127,25 +126,23 @@ async function startMain() {
   })
 }
 
-
 function stop(code = 0) {
-  if (processes.electron) {
-    processes.electron.kill()
+  if (child.electron) {
+    child.electron.kill()
   }
 
-  if (processes.viteServer) {
-    processes.viteServer.removeAllListeners()
-    processes.viteServer.close()
+  if (child.viteServer) {
+    child.viteServer.removeAllListeners()
+    child.viteServer.close()
   }
 
-  if (processes.rollupWatcher) {
-    processes.rollupWatcher.removeAllListeners()
-    processes.rollupWatcher.close()
+  if (child.rollupWatcher) {
+    child.rollupWatcher.removeAllListeners()
+    child.rollupWatcher.close()
   }
 
   process.exit(code)
 }
-
 
 Promise.all([
   startMain(),
