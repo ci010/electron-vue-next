@@ -83,6 +83,26 @@ The build resources are used by `electron-builder` to build the installer. They 
 - *In static directory, sometime you want your program has **tray** which require icon in static directory.*
 - *In assets, sometime you want to display your program icon inside a page. You need to place them in the assets!*
 
+### Modes and Environment Variables
+
+The mode option is used to specify the value of `import.meta.env.MODE` and the corresponding environment variables files that needs to be loaded.
+
+Supported two modes:
+  - `development` is used by `npm run dev`
+  - `production` is used by `npm run build`
+
+When running script, environment variables are loaded from the following files in your project root:
+
+```
+.env                # loaded in all cases
+.env.local          # loaded in all cases, ignored by git
+.env.[mode]         # only loaded in specified env mode
+.env.[mode].local   # only loaded in specified env mode, ignored by git
+```
+
+**Note:** only variables prefixed with `VITE_` are exposed to your renderer process. e.g. `VITE_SOME_KEY=123` will be exposed as `import.meta.env.VITE_SOME_KEY`, but `SOME_KEY=123` will not. This is because the `.env` files may be used by some users for server-side or build scripts and may contain sensitive information that should not be exposed in code shipped to browsers.
+
+
 ### Debug In VSCode
 
 This is really simple. In vscode debug section, you will see three profiles: 
