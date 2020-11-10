@@ -74,7 +74,7 @@ async function buildRenderer() {
 
   await build({
     ...config,
-    mode: 'production',
+    mode: MODE,
     outDir: join(__dirname, '../dist/electron/renderer'),
     assetsInlineLimit: 0
   })
