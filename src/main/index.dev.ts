@@ -7,8 +7,6 @@ global.__windowUrls = new Proxy({}, {
   }
 })
 
-process.env.NODE_ENV = 'development'
-
 app.on('browser-window-created', (event, window) => {
   if (!window.webContents.isDevToolsOpened()) {
     window.webContents.openDevTools()

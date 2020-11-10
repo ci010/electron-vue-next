@@ -5,6 +5,15 @@ const { build: electronBuilder } = require('electron-builder')
 const { stat, remove, copy } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
+const { loadEnv, getReplaceMap } = require('./env.js')
+
+const MODE = 'production'
+
+/**
+ * Loads environments from files in Vite-style but loads ALL environments
+ * @see https://github.com/vitejs/vite#modes-and-environment-variables
+ */
+const env = loadEnv(MODE, process.cwd())
 
 /**
  * Use typescript to build main process
@@ -12,15 +21,25 @@ const loadConfigFile = require('rollup/dist/loadConfigFile')
 async function buildMain() {
   await Promise.all([remove(join(__dirname, '../dist/electron/index.dev.js')), remove(join(__dirname, '../dist/electron/index.dev.js.map'))])
   const start = Date.now()
+
   console.log(chalk.bold.underline('Build main process'))
+
   const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
     input: join(__dirname, '../src/main/index.prod.ts')
   })
+
   warnings.flush()
+
   /**
    * @type {import('rollup').RollupOptions}
    */
   const config = options[0]
+
+  const replaceMap = getReplaceMap(MODE, env)
+
+  config.plugins = config.plugins || []
+  config.plugins.push(require('@rollup/plugin-replace')(replaceMap))
+
   const bundle = await rollup(config)
   // @ts-ignore
   await bundle.generate(config.output[0])
@@ -42,7 +61,17 @@ async function buildMain() {
  */
 async function buildRenderer() {
   const config = require('./vite.config')
+
+  config.env = config.env || {}
+
+  for (const [key, value] of Object.entries(env)) {
+    if (key.startsWith('VITE_')) {
+      config.env[key] = value
+    }
+  }
+
   console.log(chalk.bold.underline('Build renderer process'))
+
   await build({
     ...config,
     mode: 'production',

@@ -5,6 +5,15 @@ const { createServer } = require('vite')
 const chalk = require('chalk')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
+const { loadEnv, getReplaceMap } = require('./env.js')
+
+const MODE = 'development'
+
+/**
+ * Loads environments from files in Vite-style but loads ALL environments
+ * @see https://github.com/vitejs/vite#modes-and-environment-variables
+ */
+const env = loadEnv(MODE, process.cwd())
 
 const manualRestart = false
 /**
@@ -72,6 +81,15 @@ function reloadElectron() {
  */
 async function startRenderer() {
   const config = require('./vite.config')
+
+  config.env = config.env || {}
+
+  for (const [key, value] of Object.entries(env)) {
+    if (key.startsWith('VITE_')) {
+      config.env[key] = value
+    }
+  }
+
   await createServer(config).listen(8080)
 }
 
@@ -85,6 +103,12 @@ async function startMain() {
    * @type {import('rollup').RollupOptions}
    */
   const config = options[0]
+
+  const replaceMap = getReplaceMap(MODE, env)
+
+  config.plugins = config.plugins || []
+  config.plugins.push(require('@rollup/plugin-replace')(replaceMap))
+
   const watcher = watch({
     ...config,
     watch: {
