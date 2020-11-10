@@ -1,4 +1,5 @@
 const { join } = require('path')
+const { bundledDependencies, dependencies } = require('../package.json')
 
 /**
  * Vite shared config, assign alias and root dir
@@ -12,10 +13,7 @@ const config = {
     '/@/': join(__dirname, '../src/renderer')
   },
   optimizeDeps: {
-    exclude: [
-      'electron-updater'
-      // exclude the module with nodejs dependencies
-    ]
+    exclude: Object.keys(dependencies).filter((dep) => bundledDependencies.indexOf(dep) === -1)
   }
 }
 
