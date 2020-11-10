@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "ESNext",
-    "module": "esnext",
+    "module": "ESNext",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -32,7 +32,8 @@
   "include": [
     "src/main/**/*",
     "src/shared/**/*",
-    "src/renderer/type.ts"
+    "src/renderer/type.ts",
+    "./global.d.ts"
   ],
   "exclude": [
     "node_modules"
