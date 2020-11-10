@@ -114,6 +114,7 @@ async function startMain() {
           break
       }
     })
+
 }
 
 Promise.all([

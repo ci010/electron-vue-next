@@ -40,9 +40,13 @@ Clone or fork this project to start.
 Once you have your project, and in the project folder:
 
 ```sh
-# Install dependencies
+# Install dependencies with linter
 npm install
 
+# OR install dependencies without eslint
+npm install --no-optional
+```
+```sh
 # Will start vite server, rollup devserver, and electron to dev!
 npm run dev
 
@@ -64,7 +68,7 @@ Due to the project is following the [security](https://www.electronjs.org/docs/t
 ### Config Your Project and Build
 
 Once you install your project, you should change the package base info in [package.json](/package.json),
-and also the build information in [build.base.config.js](/scripts/build.base.config.js)
+and also the build information in [/scripts/build.base.config.js](/scripts/build.base.config.js)
 
 #### assets, static resources, build resources... what's the difference?
 
