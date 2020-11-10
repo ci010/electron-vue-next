@@ -61,12 +61,14 @@ function startElectron() {
   child.electron.stdout.on('data', electronLog)
   child.electron.stderr.on('data', electronLog)
 
-  child.electron.on('close', () => {
+  child.electron.on('close', (code, sig) => {
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
       // }
-      stop()
+      if (!sig) { // Manual close
+        stop()
+      }
     }
   })
 }
@@ -76,7 +78,7 @@ function startElectron() {
  */
 function reloadElectron() {
   if (child.electron) {
-    child.electron.kill()
+    child.electron.kill('SIGTERM')
     console.log(chalk.bold.underline.green('Electron App Restarted'))
   } else {
     console.log(chalk.bold.underline.green('Electron App Started'))
