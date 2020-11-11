@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import { Logger } from '../logger'
 import { BaseService } from './BaseService'
 import { FooService } from './FooService'
 import { INJECTIONS_SYMBOL } from './Service'
@@ -16,9 +17,21 @@ let _services!: Services
 /**
  * Initialize the services module to serve client (renderer process)
  *
+ * @param logger The simple app logger
+ */
+export function initialize(logger: Logger) {
+  _initialize({
+    BaseService: new BaseService(logger),
+    FooService: new FooService(logger)
+  })
+}
+
+/**
+ * Initialize the services module to serve client (renderer process)
+ *
  * @param services The running services for current app
  */
-export function initialize(services: Services) {
+function _initialize(services: Services) {
   if (_services) {
     throw new Error('Should not initialize the services multiple time!')
   }

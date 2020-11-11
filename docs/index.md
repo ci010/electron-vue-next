@@ -21,7 +21,7 @@ This repository contains the starter template for using vue-next with the latest
   - Detail how this work described in [Release Process](#release-process) section
 - Integrate VSCode well
   - Support debug .ts/.vue files in main/renderer process by vscode debugger
-  - Detail see [Debug](#debug-in-vscode) section
+  - Detail see [Debug](#debugging) section
 
 ## Quick Start
 
@@ -122,7 +122,7 @@ Commonly, the main process is about your core business logic, and renderer side 
 Following the [security](https://www.electronjs.org/docs/tutorial/security) guideline of electron, in this boilerplate, the renderer process [**does not** have access to nodejs module by default](https://www.electronjs.org/docs/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content). The electron provide the `preload` options in `webPreferences`. In this boilerplate, I suggest you to wrap your core logic into `Service`. 
 
 The `Service` is a type of class defined under the `src/main/services`. All the public method can be access by the renderer process.
-It's the bridge between the main and renderer. You can look at [Writing Service](#writing-service) for the detail about how to add a new service, and the [Using Service in Renderer](#using-service-in-renderer)
+It's the bridge between the main and renderer. You can look at [Service](#service) for the detail.
 
 ### NPM Scripts
 
@@ -155,11 +155,15 @@ Run eslint to fix and report eslint error.
 
 ## Development
 
-Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. You should use [Service](/src/main/services/Service.ts) to encapsulate your nodejs operation and use the hook `useService('NameOfService')` to use in renderer side.
+Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. The [Service](#service) is a simple solution to isolate renderer logic and the vulnerable logic with full nodejs module access. See [this](#option-using-node-modules-in-renderer-process) section if you want to directly use node modules in renderer process.
 
-### Writing Service
+### Service
 
-To write a service, you 
+A Service lives in a class in `src/main/services`. It should contain some of your core logic with file or network access in main process. It exposes these logic to renderer process. You call the hook `useService('NameOfService')` to use it in renderer side.
+
+The concept of service is totally optional. This is a design for security. ***If you think this is redundent and not fit with your program design, you can just remove it.***
+
+#### Create a new Service
 
 Add a file to the `/src/main/services` named `BarService.ts`
 
@@ -195,7 +199,7 @@ async function initializeServices(logger: Logger) {
 
 And this is ready to be used in renderer process by `useService('BarService')`. See [Using Service in Renderer](#using-service-in-renderer).
 
-#### Using Other Service in a Service
+##### Using Other Service in a Service
 
 If you need to use other `Service`, like `FooService`. You need to `@Inject` decorator to inject during runtime.
 
@@ -206,30 +210,12 @@ export default class BarService extends Service {
 
   async doSomeCoreLogic() {
     const result = await fooService.foo()
-    // perform some file system or network work here
+    // perform some file system or network operations here
   }
 }
 ```
 
-### Using Electron API in Renderer
-
-The boilplate exposes several electron APIs by default. You can access them by `useShell`, `useClipboard`, `useIpc` and `useDialog`.
-
-```ts
-import { defineComponent } from 'vue'
-import { useShell } from '/@/hooks'
-
-export default defineComponent({
-  setup() {
-    const shell = useShell() // this is equivalence to the import { shell } from 'electron' normally
-    // the shell object type definition works normally
-  }
-})
-```
-
-The only exception is the `useDialog`. You can only use `async` functions in it as the API call goes through IPC and it must be async:
-
-### Using Service in Renderer
+#### Using Service in Renderer
 
 You can directly access all the async methods in a service class by `useService('nameOfService')`
 
@@ -269,9 +255,17 @@ export default defineComponent({
 })
 </script>
 ```
-#### hooks or composable
 
-One great feature of vue 3 is the [composition-api](https://composition-api.vuejs.org/). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in [/src/renderer/hooks](/src/renderer/hooks) by default.
+#### Remove Service Infra
+
+If you don't like Service design, you just easily remove it by
+
+1. Remove the whole `src/main/services` directory
+2. Remove the import line `import { initialize } from './services'` and initialization line `initialize(logger)` in `src/main/index.ts`
+
+### Hooks or Composable in Renderer Process
+
+One great feature of vue 3 is the [composition-api](https://composition-api.vuejs.org/). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in `/src/renderer/hooks` by default.
 
 Take the example from vue composition api site, you have such code in `/src/renderer/hooks/mouse.ts`
 
@@ -307,7 +301,7 @@ You'd better to export this `mouse.ts` to `/src/renderer/hooks/index.ts`
 export * from './mouse.ts'
 ```
 
-Then in the `vue` file you can import all hooks by the alias
+Then in the `vue` file you can import all hooks by the alias path
 
 ```vue
 <template>
@@ -327,21 +321,41 @@ export default defineComponent({
 </script>
 ```
 
-You can import them by the alias
+### Electron API in Renderer Process
 
-### Adding New Dependencies
+The boilplate exposes several electron APIs by default. You can access them by `useShell`, `useClipboard`, `useIpc` and `useDialog`.
+*These are provided by `static/preload.js` script. If you remove the preload during the creation of this BrowserWindow, this won't work.*
 
-If you adding a new dependency, make sure if it's using any **nodejs** module, add it as `exclude` in the [vite.config.js](/scripts/vite.config.js). Otherwise, the vite will complain about "I cannot optimize it!".
+```ts
+import { defineComponent } from 'vue'
+import { useShell } from '/@/hooks'
 
-```js 
-const config = {
-  // other configs above
-  optimizeDeps: {
-    exclude: [
-      'package-name-to-exclude',
-      'fs-extra' // module like fs-extra needs to be exclude to vite
-    ]
+export default defineComponent({
+  setup() {
+    const shell = useShell() // this is equivalence to the import { shell } from 'electron' normally
+    // the shell object type definition works normally
   }
+})
+```
+
+The only exception is the `useDialog`. You can only use `async` functions in it as the API call goes through IPC and it must be `async`.
+
+### Dependencies Management
+
+If you adding a new dependency, make sure if it's using any **nodejs** module, add it as `excludeOptimize` in the `package.json`. Otherwise, the vite will complain about "I cannot handle it!".
+
+```json
+{
+  // ...other package.json content
+  "dependencies": {
+    // ...other dependencies
+    "a-nodejs-package": "<version>"
+  },
+  "excludeOptimize": [
+    // ...other existed excluded packages
+    "a-nodejs-package" // your new package
+  ],
+  // ...rest of package.json
 }
 ```
 
@@ -353,9 +367,9 @@ If you want to use the native dependencies, which need to compile when install. 
 
 #### Dependencies Contains Compiled Binary
 
-If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail.
+If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail. The development process won't affect much by it.
 
-## Debugging
+### Debugging
 
 This is really simple. In vscode debug section, you will see three profiles: 
 
@@ -405,6 +419,25 @@ The third one is run the 1 and 2 at the same time.
 
 You should first run `npm run dev` and start debugging by the vscode debug.
 
+### Option: Using Node Modules in Renderer Process
+
+By default, the renderer process environment is just a raw front-end environment. You cannot use any nodejs module here. (Use service alternative)
+
+If you just want to use node modules in electron renderer/browser side anyway, you can just enable the `nodeIntegration` in BrowserWindow creation.
+
+For example, you can enable the main window node integration like this:
+
+```ts
+const mainWindow = new BrowserWindow({
+  height: 600,
+  width: 800,
+  webPreferences: {
+    preload: join(__static, 'preload.js'),
+    nodeIntegration: true // adding this to enable the node integration
+  }
+})
+```
+
 ## Build
 
 The project build is based on [electron-builder](https://github.com/electron-userland/electron-builder). The config file is majorly in [scripts/build.base.config.js](../scripts/build.base.config.js). And you can refer the electron-builder [document](https://www.electron.build/).
@@ -422,7 +455,7 @@ Normally, once you correctly config the `dependencies` in [Development](#develop
 For example, [7zip-min](https://github.com/onikienko/7zip-min):
 
 Since it using the `7zip-bin` which carry binary for multiple platform, we need to correctly include them in config.
-Modify the electron-builder build script [build.base.config.js](/scripts/build.base.config.js)
+Modify the electron-builder build script `build.base.config.js`
 
 ```js
   files: [
@@ -437,7 +470,7 @@ Modify the electron-builder build script [build.base.config.js](/scripts/build.b
 
 Add them to `files` and `asarUnpack` to ensure the electron builder correctly pack & unpack them.
 
-To optimize for multi-platform, you should also exclude them from `files` of each platform config [build.config.js](/scripts/build.config.js)
+To optimize for multi-platform, you should also exclude them from `files` of each platform config `build.config.js`
 
 ```js
   mac: {
@@ -477,3 +510,7 @@ It using the conventional-commit. If you want to auto-generate the changelog, yo
 If the **bump version PR** is approved and merged to master, it will auto build and release to github release.
 
 **If you want to disable this github action release process, just remove the [.github/workflows/build.yml](/.github/workflows/build.yml) file.**
+
+### AutoUpdate Support
+
+This boilerplate include the [electron-updater](https://github.com/electron-userland/electron-builder/tree/master/packages/electron-updater) as dependencies by default. You can follow the [electron-builder](https://github.com/electron-userland/electron-builder) guideline to implement the autoUpdate process.

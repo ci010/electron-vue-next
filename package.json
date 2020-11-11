@@ -18,17 +18,13 @@
   "license": "MIT",
   "dependencies": {
     "electron-updater": "^4.3.5",
-    "eslint": "^7.13.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.2",
-    "eslint-plugin-vue": "^7.1.0",
     "vue": "^3.0.2",
     "vue-router": "^4.0.0-beta.13",
     "vuex": "^4.0.0-beta.4"
   },
+  "excludeOptimize": [
+    "electron-updater"
+  ],
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-json": "^4.1.0",
@@ -39,6 +35,13 @@
     "@vue/compiler-sfc": "^3.0.2",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
+    "eslint": "^7.13.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.2",
+    "eslint-plugin-vue": "^7.1.0",
     "electron": "^10.1.2",
     "electron-builder": "^22.9.1",
     "esbuild": "^0.6.33",
@@ -55,10 +58,5 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.2",
     "eslint-plugin-vue": "^7.1.0"
-  },
-  "bundleDependencies": [
-    "vue",
-    "vue-router",
-    "vuex"
-  ]
+  }
 }

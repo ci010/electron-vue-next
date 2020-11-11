@@ -1,9 +1,9 @@
 const { join } = require('path')
-const { bundledDependencies, dependencies } = require('../package.json')
+const { excludeOptimize } = require('../package.json')
 
 /**
  * Vite shared config, assign alias and root dir
- * @type {import('vite').BuildConfig}
+ * @type {import('vite').UserConfig}
  */
 const config = {
   root: join(__dirname, '../src/renderer'),
@@ -13,7 +13,7 @@ const config = {
     '/@/': join(__dirname, '../src/renderer')
   },
   optimizeDeps: {
-    exclude: Object.keys(dependencies).filter((dep) => bundledDependencies.indexOf(dep) === -1)
+    exclude: excludeOptimize
   }
 }
 

@@ -4,6 +4,8 @@ This repository contains the starter template for using vue-next with the latest
 
 *I started to learn electron & vue by the great project [electron-vue](https://github.com/SimulatedGREG/electron-vue). This project is also inspired from it.*
 
+You can see the document here.
+
 ## Features
 
 - Electron 10
@@ -39,14 +41,10 @@ This repository contains the starter template for using vue-next with the latest
 Clone or fork this project to start.
 Once you have your project, and in the project folder:
 
-```sh
+```shell
 # Install dependencies with linter
 npm install
 
-# OR install dependencies without eslint
-npm install --no-optional
-```
-```sh
 # Will start vite server, rollup devserver, and electron to dev!
 npm run dev
 
@@ -60,107 +58,3 @@ npm run build:dir
 npm run build:production
 
 ```
-
-### Using NodeJS in Renderer
-
-Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. You should use [Service](/src/main/services/Service.ts) to encapsulate your nodejs operation and use the hook `useService('NameOfService')` to use in renderer side.
-
-### Config Your Project and Build
-
-Once you install your project, you should change the package base info in [package.json](/package.json),
-and also the build information in [/scripts/build.base.config.js](/scripts/build.base.config.js)
-
-#### assets, static resources, build resources... what's the difference?
-
-The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [/src/renderer/assets](src/renderer/assets)
-
-The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [/static](static).
-
-The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [/build/icons](build/icons).
-
-*Notice that your program icon can show up in multiple place! Don't mixup them!*
-- *In build icons, of course you want your program has correct icon.*
-- *In static directory, sometime you want your program has **tray** which require icon in static directory.*
-- *In assets, sometime you want to display your program icon inside a page. You need to place them in the assets!*
-
-### Debug In VSCode
-
-This is really simple. In vscode debug section, you will see three profiles: 
-
-1. Electron: Main (attach)
-2. Electron: Renderer (attach)
-3. Electron: Main & Renderer (attach)
-
-The name should be clear. The first one attach to main and the second one attach to renderer (required vscode chrome debug extension).
-The third one is run the 1 and 2 at the same time.
-
-You should first run `npm run dev` and start debugging by the vscode debug.
-
-### Adding New Dependencies
-
-If you adding new dependenceis, make sure if it using nodejs module, add it as `exclude` in the [/scripts/vite.config.js](/scripts/vite.config.js). Otherwise, the vite will complain about "I cannot optimize it!".
-
-The raw javascript dependencies are okay for vite.
-
-#### Native Dependencies
-
-If you want to use the native dependencies, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config.
-
-For example, [7zip-min](https://github.com/onikienko/7zip-min):
-
-Since it using the `7zip-bin` which carry binary for multiple platform, we need to correctly include them in config.
-Modify the electron-builder build script [/scripts/build.base.config.js](/scripts/build.base.config.js)
-
-```js
-  files: [
-    "dist/electron/**/*",
-    "!**/node_modules/**/*",
-    "node_modules/7zip-bin/**/*"
-  ],
-  asarUnpack: [
-    "node_modules/7zip-bin/**/*"
-  ],
-```
-
-Add them to `files` and `asarUnpack` to ensure the electron builder correctly pack & unpack them.
-
-To optimize for multi-platform, you should also exclude them from `files` of each platform config [/scripts/build.config.js](/scripts/build.config.js)
-
-```js
-  mac: {
-    // ... other mac configs
-    files: [
-      "node_modules/7zip-bin/**/*",
-      "!node_modules/7zip-bin/linux/**",
-      "!node_modules/7zip-bin/win/**"
-    ]
-  },
-  win: {
-    // ... other win configs
-    files: [
-      "node_modules/7zip-bin/**/*",
-      "!node_modules/7zip-bin/linux/**",
-      "!node_modules/7zip-bin/mac/**"
-    ]
-  },
-  linux: {
-    // ... other linux configs
-    files: [
-      "node_modules/7zip-bin/**/*",
-      "!node_modules/7zip-bin/win/**",
-      "!node_modules/7zip-bin/mac/**"
-    ]
-  },
-```
-
-### Release Process
-
-The out-of-box github action will validate each your PR by eslint and run `npm run build`. It will not trigger electron-builder to build production assets.
-
-For each push in master branch, it will build production assets for win/mac/linux platform and upload it as github action assets. It will also create a **pull request** to asking you to bump version and update the changelog. 
-
-It using the conventional-commit. If you want to auto-generate the changelog, you should follow the [conventional commit guideline](https://www.conventionalcommits.org/en/v1.0.0).
-
-If the **bump version PR** is approved and merged to master, it will auto build and release to github release.
-
-**If you want to disable this github action release process, just remove the [/.github/workflows/build.yml](/.github/workflows/build.yml) file.**

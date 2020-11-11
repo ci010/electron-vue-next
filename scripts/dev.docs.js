@@ -1,13 +1,13 @@
 const chalk = require('chalk')
 const { createServer } = require('vitepress')
-const { bundledDependencies, dependencies } = require('../package.json')
+const { excludeOptimize } = require('../package.json')
 
 async function startVitepress() {
   createServer({
     root: 'docs',
     optimizeDeps: {
-      exclude: Object.keys(dependencies).filter((dep) => bundledDependencies.indexOf(dep) === -1)
-    }
+      exclude: excludeOptimize
+    },
   }).then((server) => {
     server.listen(3000, () => {
       console.log(`listening at http://localhost:${3000}`)
