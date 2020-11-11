@@ -16,7 +16,7 @@ const config = ({
     dir: join(__dirname, '../dist/electron'),
     format: 'cjs'
   },
-  onwarn: onRollupWarning(undefined, undefined),
+  onwarn: onRollupWarning(undefined, {}),
   external: [...builtins, 'electron'],
   plugins: [
     pluginAlias({
