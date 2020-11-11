@@ -8,6 +8,7 @@
     "dev:docs": "node scripts/dev.docs.js",
     "dev": "node scripts/dev.js",
     "build": "node scripts/build.js",
+    "build:docs": "vitepress build docs",
     "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
     "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
     "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
