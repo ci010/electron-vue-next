@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
-    "incremental": true, 
-    "target": "ESNext", 
-    "module": "CommonJS", 
-    "declaration": true, 
-    "declarationMap": true, 
-    "sourceMap": true, 
-    "rootDir": "./src", 
+    "incremental": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist/electron",
-    "downlevelIteration": true, 
+    "downlevelIteration": true,
     "resolveJsonModule": true,
-    "strict": true, 
-    "moduleResolution": "node", 
-    "baseUrl": ".", 
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
     "paths": {
       "/@shared/*": [
         "src/shared/*"
@@ -23,16 +23,17 @@
       "/@main/*": [
         "src/main/*"
       ]
-    }, 
-    "esModuleInterop": true, 
-    "experimentalDecorators": true, 
-    "skipLibCheck": true, 
-    "forceConsistentCasingInFileNames": true 
+    },
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "src/main/**/*",
     "src/shared/**/*",
-    "src/renderer/type.ts"
+    "src/renderer/type.ts",
+    "./global.d.ts"
   ],
   "exclude": [
     "node_modules"
