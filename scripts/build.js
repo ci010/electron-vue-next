@@ -2,7 +2,7 @@ const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
-const { stat, remove, copy } = require('fs-extra')
+const { stat, remove, copy } = require('fs-extra') // Module is not listed in package.json dependencies
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { loadEnv, getReplaceMap } = require('./env.js')
@@ -44,9 +44,9 @@ async function buildMain () {
   config.plugins.push(require('@rollup/plugin-replace')(replaceMap))
 
   const bundle = await rollup(config)
-  // @ts-ignore
+  // @ts-expect-error
   await bundle.generate(config.output[0])
-  // @ts-ignore
+  // @ts-expect-error
   const { output } = await bundle.write(config.output[0])
   for (const chunk of output) {
     if (chunk.type === 'chunk') {
@@ -62,13 +62,12 @@ async function buildMain () {
   console.log(
     `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.`
   )
-  console.log()
 }
 
 /**
  * Use vite to build renderer process
  */
-async function buildRenderer () {
+function buildRenderer () {
   const config = require('./vite.config')
 
   config.env = config.env || {}
@@ -81,7 +80,7 @@ async function buildRenderer () {
 
   console.log(chalk.bold.underline('Build renderer process'))
 
-  await build({
+  return build({
     ...config,
     mode: MODE,
     outDir: join(__dirname, '../dist/electron/renderer'),
@@ -98,18 +97,19 @@ async function buildRenderer () {
 async function buildElectron (config, dir) {
   console.log(chalk.bold.underline('Build electron'))
   const start = Date.now()
-  await electronBuilder({ publish: 'never', config, dir }).then(async files => {
-    for (const file of files) {
-      const fstat = await stat(file)
-      console.log(
-        `${chalk.gray('[write]')} ${chalk.yellow(file)} ${(
-          fstat.size /
-          1024 /
-          1024
-        ).toFixed(2)}mb`
-      )
-    }
-  })
+  const files = await electronBuilder({ publish: 'never', config, dir })
+
+  for (const file of files) {
+    const fstat = await stat(file)
+    console.log(
+      `${chalk.gray('[write]')} ${chalk.yellow(file)} ${(
+        fstat.size /
+        1024 /
+        1024
+      ).toFixed(2)}mb`
+    )
+  }
+
   console.log(
     `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.`
   )
@@ -146,4 +146,7 @@ async function start () {
   }
 }
 
-start().catch(console.error)
+start().catch(e => {
+  console.error(e)
+  process.exit(1)
+})
