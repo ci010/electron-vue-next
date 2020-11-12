@@ -5,8 +5,10 @@
   "description": "",
   "main": "./dist/electron/index.prod.js",
   "scripts": {
+    "dev:docs": "node scripts/dev.docs.js",
     "dev": "node scripts/dev.js",
     "build": "node scripts/build.js",
+    "build:docs": "vitepress build docs",
     "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
     "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
     "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
@@ -16,21 +18,24 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "vue": "^3.0.0-rc.10",
+    "electron-updater": "^4.3.5",
+    "vue": "^3.0.2",
     "vue-router": "^4.0.0-beta.13",
     "vuex": "^4.0.0-beta.4"
   },
+  "excludeOptimize": [
+    "electron-updater"
+  ],
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^8.4.0",
     "@rollup/plugin-replace": "^2.3.4",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/node": "^14.11.8",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
-    "@vue/compiler-sfc": "^3.0.0-rc.10",
+    "@vue/compiler-sfc": "^3.0.2",
     "chalk": "^4.1.0",
-    "conventional-changelog-conventionalcommits": "^4.4.0",
     "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "electron": "^10.1.2",
@@ -38,7 +43,8 @@
     "esbuild": "^0.6.33",
     "rollup": "^2.28.2",
     "typescript": "^4.0.3",
-    "vite": "^1.0.0-rc.6"
+    "vite": "^1.0.0-rc.6",
+    "vitepress": "^0.7.0"
   },
   "optionalDependencies": {
     "eslint": "^7.13.0",

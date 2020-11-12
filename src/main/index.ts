@@ -3,22 +3,13 @@ import { join } from 'path'
 import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
-import { BaseService } from './services/BaseService'
-import { FooService } from './services/FooService'
 
 async function main() {
   const logger = new Logger()
   logger.initialize(app.getPath('userData'))
-  initializeServices(logger)
+  initialize(logger)
   app.whenReady().then(() => {
     createWindow()
-  })
-}
-
-async function initializeServices(logger: Logger) {
-  initialize({
-    BaseService: new BaseService(logger),
-    FooService: new FooService(logger)
   })
 }
 
@@ -29,7 +20,8 @@ function createWindow() {
     width: 800,
     webPreferences: {
       preload: join(__static, 'preload.js'),
-      contextIsolation: true
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
