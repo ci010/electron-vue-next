@@ -18,8 +18,10 @@ let electronProcess = null
  * Start electron process and inspect port 5858 with 9222 as debug port.
  */
 function startElectron() {
-  electronProcess = spawn(
-    /** @type {string} */electron,
+  /** @type {any} */
+  const electronPath = electron
+  const process = spawn(
+    electronPath,
     ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
   )
 
@@ -44,20 +46,21 @@ function startElectron() {
         .map(colorize).join(EOL)
     )
   }
-  electronProcess.stdout.on('data', electronLog)
-  electronProcess.stderr.on('data', electronLog)
-
-  electronProcess.on('exit', (code, sig) => {
+  process.stdout.on('data', electronLog)
+  process.stderr.on('data', electronLog)
+  process.on('exit', (code, sig) => {
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
       // }
 
       if (!sig) { // Manual close
-        process.exit(0)
+        process.kill(0)
       }
     }
   })
+
+  electronProcess = process
 }
 
 /**
@@ -100,7 +103,6 @@ async function startMain() {
     }
   })
     .on('change', (id) => console.log(`${chalk.grey('[change]')} ${id}`))
-
     .on('event', (event) => {
       switch (event.code) {
         case 'END':
@@ -114,7 +116,6 @@ async function startMain() {
           break
       }
     })
-
 }
 
 Promise.all([
