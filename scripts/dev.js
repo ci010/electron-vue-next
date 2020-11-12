@@ -17,7 +17,6 @@ const MODE = 'development'
  */
 const env = loadEnv(MODE, process.cwd())
 
-
 const manualRestart = false
 
 /**
@@ -31,7 +30,7 @@ let electronProcess = null
 function startElectron() {
   /** @type {any} */
   const electronPath = electron
-  const process = spawn(
+  electronProcess = spawn(
     electronPath,
     ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
   )
@@ -45,7 +44,8 @@ function startElectron() {
         return chalk.green('[INFO]') + line.substring(6)
       } else if (line.startsWith('[WARN]')) {
         return chalk.yellow('[WARN]') + line.substring(6)
-      } if (line.startsWith('[ERROR]')) {
+      }
+      if (line.startsWith('[ERROR]')) {
         return chalk.red('[ERROR]') + line.substring(7)
       }
       return chalk.grey('[console] ') + line
@@ -57,21 +57,20 @@ function startElectron() {
         .map(colorize).join(EOL)
     )
   }
-  process.stdout.on('data', electronLog)
-  process.stderr.on('data', electronLog)
-  process.on('exit', (code, sig) => {
+
+  electronProcess.stdout.on('data', electronLog)
+  electronProcess.stderr.on('data', electronLog)
+  electronProcess.on('exit', (code, sig) => {
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
       // }
 
       if (!sig) { // Manual close
-        process.kill(0)
+        process.exit(0)
       }
     }
   })
-
-  electronProcess = process
 }
 
 /**
@@ -93,7 +92,6 @@ function reloadElectron() {
 function startRenderer() {
   const config = require('./vite.config')
 
-
   config.env = config.env || {}
 
   for (const [key, value] of Object.entries(env)) {
@@ -102,7 +100,7 @@ function startRenderer() {
     }
   }
 
-  await createServer(config).listen(8080)
+  return createServer(config).listen(8080)
 }
 
 async function startMain() {
@@ -150,5 +148,5 @@ Promise.all([
   startRenderer()
 ]).catch(e => {
   console.error(e)
-  process.exit(0)
+  process.exit(1)
 })
