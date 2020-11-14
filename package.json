@@ -12,8 +12,8 @@
     "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
     "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
     "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
-    "lint": "eslint --ext .ts,.vue src",
-    "lint:fix": "eslint --ext .ts,.vue src --fix src"
+    "lint": "eslint --ext .ts,.vue,.js src scripts",
+    "lint:fix": "npm run lint -- --fix"
   },
   "author": "",
   "license": "MIT",
