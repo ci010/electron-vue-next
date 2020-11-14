@@ -24,7 +24,6 @@ let electronProcess = null
 function startElectron() {
   /** @type {any} */
   const electronPath = electron
-
   const spawnProcess = spawn(
     electronPath,
     ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
@@ -39,8 +38,7 @@ function startElectron() {
         return chalk.green('[INFO]') + line.substring(6)
       } else if (line.startsWith('[WARN]')) {
         return chalk.yellow('[WARN]') + line.substring(6)
-      }
-      if (line.startsWith('[ERROR]')) {
+      } else if (line.startsWith('[ERROR]')) {
         return chalk.red('[ERROR]') + line.substring(7)
       }
       return chalk.grey('[console] ') + line
@@ -66,6 +64,7 @@ function startElectron() {
       }
     }
   })
+
   electronProcess = spawnProcess
 }
 
