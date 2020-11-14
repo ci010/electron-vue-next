@@ -56,7 +56,6 @@ function startElectron() {
   spawnProcess.stdout.on('data', electronLog)
   spawnProcess.stderr.on('data', electronLog)
   spawnProcess.on('exit', (_, signal) => {
-
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);

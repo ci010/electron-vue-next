@@ -4,7 +4,7 @@ const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
-const { stat, remove, copy } = require('fs-extra') // Module is not listed in package.json dependencies
+const { stat, remove, copy } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const env = require('./env')
@@ -57,7 +57,7 @@ async function buildMain() {
 /**
  * Use vite to build renderer process
  */
-function buildRenderer ()
+function buildRenderer () {
   const config = require('./vite.config')
 
   config.env = config.env || {}
