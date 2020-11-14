@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - run: npm ci
+
+    # Try run auto-fix. Ignore any errors
+    - run:  npm run lint:fix || exit 0;
+
+
+    # Try commit if some files was fixed
+    - name: Fix code style issues
+      run: |
+          git diff-index --quiet HEAD || (
+           git config user.name "Lint Action"
+           git config user.email "lint-action@github.com"
+           git commit -am "style: Fix code style issues"
+           git push
+          )
+      
+
+    - run: npm run lint
