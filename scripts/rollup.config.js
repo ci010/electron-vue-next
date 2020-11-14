@@ -2,11 +2,47 @@ import pluginAlias from '@rollup/plugin-alias'
 import pluginCommonJs from '@rollup/plugin-commonjs'
 import pluginJson from '@rollup/plugin-json'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import pluginReplace from '@rollup/plugin-replace'
+import pluginTypescript from '@rollup/plugin-typescript'
 import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { startService } from 'esbuild'
-import { extname, join } from 'path'
-import { onRollupWarning } from 'vite'
+import { extname, join, relative } from 'path'
+const env = require('./env.js')
+
+// user env variables loaded from .env files.
+// only those prefixed with VITE_ are exposed.
+const userClientEnv = {}
+const userEnvReplacements = {}
+Object.keys(env).forEach((key) => {
+  userEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(env[key])
+  userClientEnv[key] = env[key]
+})
+
+const resolvedMode = process.env.VITE_ENV || env.VITE_ENV || process.env.NODE_ENV
+
+const builtInClientEnv = {
+  BASE_URL: '',
+  MODE: process.env.NODE_ENV,
+  DEV: resolvedMode !== 'production',
+  PROD: resolvedMode === 'production'
+}
+const builtInEnvReplacements = {}
+Object.keys(builtInClientEnv).forEach((key) => {
+  builtInEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(
+    builtInClientEnv[key]
+  )
+})
+
+const typescriptPluginInstance = pluginTypescript({
+  tsconfig: join(__dirname, '../src/main/tsconfig.json')
+})
+
+// typescript plugin only for typecheck, it should not affect the code transform
+delete typescriptPluginInstance.load
+delete typescriptPluginInstance.generateBundle
+
+let compileFailedCount = 0
 
 /**
  * @type {import('rollup').RollupOptions}
@@ -16,15 +52,44 @@ const config = ({
     dir: join(__dirname, '../dist/electron'),
     format: 'cjs'
   },
-  onwarn: onRollupWarning(undefined, {}),
+  onwarn: (warning) => {
+    if (warning.plugin === 'typescript') {
+      // @ts-ignore
+      console.log(`${chalk.cyan(relative(join(__dirname, '..'), warning.loc.file))}:${chalk.yellow(warning.loc.line)}:${chalk.yellow(warning.loc.column)} - ${warning.message}`)
+      console.log(warning.frame)
+      compileFailedCount++
+    } else {
+      console.log(chalk.yellow(warning.toString()))
+    }
+  },
   external: [...builtins, 'electron'],
   plugins: [
+    {
+      name: 'typechecker',
+      generateBundle() {
+        if (compileFailedCount) {
+          const count = compileFailedCount
+          compileFailedCount = 0
+          throw new Error(`Fail to compile the project. Found ${count} errors.`)
+        }
+      }
+    },
     pluginAlias({
       entries: {
         '/@main': join(__dirname, '../src/main'),
         '/@shared': join(__dirname, '../src/shared')
       }
     }),
+    pluginReplace({
+      ...userEnvReplacements,
+      ...builtInEnvReplacements,
+      'import.meta.env.': '({}).',
+      'import.meta.env': JSON.stringify({
+        ...userClientEnv,
+        ...builtInClientEnv
+      })
+    }),
+    typescriptPluginInstance,
     {
       name: 'main:esbuild',
       async buildStart() {

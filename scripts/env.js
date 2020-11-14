@@ -25,6 +25,9 @@ function lookupFile(
   }
 }
 
+/**
+ * @returns {Record<string, string>}
+ */
 function loadEnv(mode, root) {
   if (mode === 'local') {
     throw new Error(
@@ -33,6 +36,9 @@ function loadEnv(mode, root) {
     )
   }
 
+  /**
+   * @type {Record<string, string>}
+   */
   const clientEnv = {}
   const envFiles = [
     /** mode local file */ `.env.${mode}.local`,
@@ -78,49 +84,7 @@ function loadEnv(mode, root) {
 }
 
 /**
- *
- * @param {string} mode
- * @param {Record<string, unknown>} env
- *
- * @see https://github.com/vitejs/vite/blob/bc1a8eeef725de57d0e74d7eb43803f3ea929ac8/src/node/build/index.ts#L479-L499
+ * Loads environments from files in Vite-style but loads ALL environments
+ * @see https://github.com/vitejs/vite#modes-and-environment-variables
  */
-function getReplaceMap(configMode, env = {}) {
-  // user env variables loaded from .env files.
-  // only those prefixed with VITE_ are exposed.
-  const userClientEnv = {}
-  const userEnvReplacements = {}
-  Object.keys(env).forEach((key) => {
-    userEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(env[key])
-    userClientEnv[key] = env[key]
-  })
-
-  const resolvedMode = process.env.VITE_ENV || env.VITE_ENV || configMode
-
-  const builtInClientEnv = {
-    BASE_URL: '',
-    MODE: configMode,
-    DEV: resolvedMode !== 'production',
-    PROD: resolvedMode === 'production'
-  }
-  const builtInEnvReplacements = {}
-  Object.keys(builtInClientEnv).forEach((key) => {
-    builtInEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(
-      builtInClientEnv[key]
-    )
-  })
-
-  return {
-    ...userEnvReplacements,
-    ...builtInEnvReplacements,
-    'import.meta.env.': '({}).',
-    'import.meta.env': JSON.stringify({
-      ...userClientEnv,
-      ...builtInClientEnv
-    })
-  }
-}
-
-module.exports = {
-  getReplaceMap,
-  loadEnv
-}
+module.exports = loadEnv(process.env.NODE_ENV, process.cwd())

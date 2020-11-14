@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'development'
+
 const electron = require('electron')
 const { spawn } = require('child_process')
 const { join } = require('path')
@@ -7,15 +9,7 @@ const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 const { EOL } = require('os')
 
-const { loadEnv, getReplaceMap } = require('./env.js')
-
-const MODE = 'development'
-
-/**
- * Loads environments from files in Vite-style but loads ALL environments
- * @see https://github.com/vitejs/vite#modes-and-environment-variables
- */
-const env = loadEnv(MODE, process.cwd())
+const env = require('./env')
 
 const manualRestart = false
 
@@ -30,7 +24,8 @@ let electronProcess = null
 function startElectron() {
   /** @type {any} */
   const electronPath = electron
-  electronProcess = spawn(
+
+  const spawnProcess = spawn(
     electronPath,
     ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
   )
@@ -58,19 +53,21 @@ function startElectron() {
     )
   }
 
-  electronProcess.stdout.on('data', electronLog)
-  electronProcess.stderr.on('data', electronLog)
-  electronProcess.on('exit', (code, sig) => {
+  spawnProcess.stdout.on('data', electronLog)
+  spawnProcess.stderr.on('data', electronLog)
+  spawnProcess.on('exit', (_, signal) => {
+
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
       // }
 
-      if (!sig) { // Manual close
+      if (!signal) { // Manual close
         process.exit(0)
       }
     }
   })
+  electronProcess = spawnProcess
 }
 
 /**
@@ -92,8 +89,9 @@ function reloadElectron() {
 function startRenderer() {
   const config = require('./vite.config')
 
-  config.env = config.env || {}
+  config.mode = process.env.NODE_ENV
 
+  config.env = config.env || {}
   for (const [key, value] of Object.entries(env)) {
     if (key.startsWith('VITE_')) {
       config.env[key] = value
@@ -116,11 +114,6 @@ async function startMain() {
    */
   const config = options[0]
 
-  const replaceMap = getReplaceMap(MODE, env)
-
-  config.plugins = config.plugins || []
-  config.plugins.push(require('@rollup/plugin-replace')(replaceMap))
-
   watch({
     ...config,
     watch: {
@@ -137,7 +130,9 @@ async function startMain() {
           console.log(`${chalk.grey('[bundle]')} ${event.output} ${event.duration + 'ms'}`)
           break
         case 'ERROR':
-          console.error(event.error)
+          if (event.error.plugin !== 'typechecker') {
+            console.error(event.error)
+          }
           break
       }
     })

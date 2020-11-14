@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'production'
+
 const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk')
@@ -5,20 +7,12 @@ const { build: electronBuilder } = require('electron-builder')
 const { stat, remove, copy } = require('fs-extra') // Module is not listed in package.json dependencies
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
-const { loadEnv, getReplaceMap } = require('./env.js')
-
-const MODE = 'production'
-
-/**
- * Loads environments from files in Vite-style but loads ALL environments
- * @see https://github.com/vitejs/vite#modes-and-environment-variables
- */
-const env = loadEnv(MODE, process.cwd())
+const env = require('./env')
 
 /**
  * Use typescript to build main process
  */
-async function buildMain () {
+async function buildMain() {
   await Promise.all([
     remove(join(__dirname, '../dist/electron/index.dev.js')),
     remove(join(__dirname, '../dist/electron/index.dev.js.map'))
@@ -28,7 +22,8 @@ async function buildMain () {
   console.log(chalk.bold.underline('Build main process'))
 
   const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
-    input: join(__dirname, '../src/main/index.prod.ts')
+    input: join(__dirname, '../src/main/index.prod.ts'),
+    environment: 'BUILD:PRODUCTION'
   })
 
   warnings.flush()
@@ -37,11 +32,6 @@ async function buildMain () {
    * @type {import('rollup').RollupOptions}
    */
   const config = options[0]
-
-  const replaceMap = getReplaceMap(MODE, env)
-
-  config.plugins = config.plugins || []
-  config.plugins.push(require('@rollup/plugin-replace')(replaceMap))
 
   const bundle = await rollup(config)
   // @ts-expect-error
@@ -67,7 +57,7 @@ async function buildMain () {
 /**
  * Use vite to build renderer process
  */
-function buildRenderer () {
+function buildRenderer ()
   const config = require('./vite.config')
 
   config.env = config.env || {}
@@ -82,7 +72,7 @@ function buildRenderer () {
 
   return build({
     ...config,
-    mode: MODE,
+    mode: process.env.NODE_ENV,
     outDir: join(__dirname, '../dist/electron/renderer'),
     assetsInlineLimit: 0
   })
@@ -94,7 +84,7 @@ function buildRenderer () {
  * @param {import('electron-builder').Configuration} config The electron builder config
  * @param {boolean} dir Use dir mode to build
  */
-async function buildElectron (config, dir) {
+async function buildElectron(config, dir) {
   console.log(chalk.bold.underline('Build electron'))
   const start = Date.now()
   const files = await electronBuilder({ publish: 'never', config, dir })
@@ -115,7 +105,7 @@ async function buildElectron (config, dir) {
   )
 }
 
-async function copyStatic () {
+async function copyStatic() {
   await remove(join(__dirname, '../dist/electron/static'))
   await copy(
     join(__dirname, '../static'),
@@ -123,11 +113,11 @@ async function copyStatic () {
   )
 }
 
-async function start () {
+async function start() {
   /**
    * Load electron-builder Configuration
    */
-  function loadConfig () {
+  function loadConfig() {
     switch (process.env.BUILD_TARGET) {
       case 'production':
         return require('./build.config')
@@ -146,7 +136,7 @@ async function start () {
   }
 }
 
-start().catch(e => {
-  console.error(e)
+start().catch((e) => {
+  console.error(chalk.red(e.toString()))
   process.exit(1)
 })
