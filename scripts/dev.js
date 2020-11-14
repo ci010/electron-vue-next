@@ -8,6 +8,7 @@ const chalk = require('chalk')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 const { EOL } = require('os')
+
 const env = require('./env')
 
 const manualRestart = false
@@ -37,7 +38,7 @@ function startElectron() {
         return chalk.green('[INFO]') + line.substring(6)
       } else if (line.startsWith('[WARN]')) {
         return chalk.yellow('[WARN]') + line.substring(6)
-      } if (line.startsWith('[ERROR]')) {
+      } else if (line.startsWith('[ERROR]')) {
         return chalk.red('[ERROR]') + line.substring(7)
       }
       return chalk.grey('[console] ') + line
@@ -49,6 +50,7 @@ function startElectron() {
         .map(colorize).join(EOL)
     )
   }
+
   spawnProcess.stdout.on('data', electronLog)
   spawnProcess.stderr.on('data', electronLog)
   spawnProcess.on('exit', (_, signal) => {
@@ -94,7 +96,7 @@ function startRenderer() {
     }
   }
 
-  createServer(config).listen(8080)
+  return createServer(config).listen(8080)
 }
 
 async function startMain() {
@@ -139,5 +141,5 @@ Promise.all([
   startRenderer()
 ]).catch(e => {
   console.error(e)
-  process.exit(0)
+  process.exit(1)
 })

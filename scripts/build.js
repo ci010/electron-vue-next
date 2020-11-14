@@ -34,9 +34,9 @@ async function buildMain() {
   const config = options[0]
 
   const bundle = await rollup(config)
-  // @ts-ignore
+  // @ts-expect-error
   await bundle.generate(config.output[0])
-  // @ts-ignore
+  // @ts-expect-error
   const { output } = await bundle.write(config.output[0])
   for (const chunk of output) {
     if (chunk.type === 'chunk') {
@@ -50,15 +50,14 @@ async function buildMain() {
     }
   }
   console.log(
-    `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.`
+    `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.\n`
   )
-  console.log()
 }
 
 /**
  * Use vite to build renderer process
  */
-async function buildRenderer() {
+function buildRenderer () {
   const config = require('./vite.config')
 
   config.env = config.env || {}
@@ -71,7 +70,7 @@ async function buildRenderer() {
 
   console.log(chalk.bold.underline('Build renderer process'))
 
-  await build({
+  return build({
     ...config,
     mode: process.env.NODE_ENV,
     outDir: join(__dirname, '../dist/electron/renderer'),
@@ -88,18 +87,19 @@ async function buildRenderer() {
 async function buildElectron(config, dir) {
   console.log(chalk.bold.underline('Build electron'))
   const start = Date.now()
-  await electronBuilder({ publish: 'never', config, dir }).then(async files => {
-    for (const file of files) {
-      const fstat = await stat(file)
-      console.log(
-        `${chalk.gray('[write]')} ${chalk.yellow(file)} ${(
-          fstat.size /
-          1024 /
-          1024
-        ).toFixed(2)}mb`
-      )
-    }
-  })
+  const files = await electronBuilder({ publish: 'never', config, dir })
+
+  for (const file of files) {
+    const fstat = await stat(file)
+    console.log(
+      `${chalk.gray('[write]')} ${chalk.yellow(file)} ${(
+        fstat.size /
+        1024 /
+        1024
+      ).toFixed(2)}mb`
+    )
+  }
+
   console.log(
     `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.`
   )
