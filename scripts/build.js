@@ -50,7 +50,7 @@ async function buildMain() {
     }
   }
   console.log(
-    `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.`
+    `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.\n`
   )
 }
 
