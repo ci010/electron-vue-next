@@ -6,6 +6,7 @@
   "main": "./dist/electron/index.prod.js",
   "scripts": {
     "dev:docs": "node scripts/dev.docs.js",
+    "predev": "node scripts/build.env.js",
     "dev": "node scripts/dev.js",
     "build": "node scripts/build.js",
     "build:docs": "vitepress build docs",

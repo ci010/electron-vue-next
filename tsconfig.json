@@ -30,7 +30,7 @@
   "include": [
     "src/main/**/*",
     "src/shared/**/*",
-    "src/renderer/renderer.d.ts",
+    "src/renderer/renderer.d.ts"
   ],
   "exclude": [
     "node_modules"

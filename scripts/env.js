@@ -28,7 +28,7 @@ function lookupFile(
 /**
  * @returns {Record<string, string>}
  */
-function loadEnv(mode, root) {
+module.exports.loadEnv = function loadEnv(mode, root = process.cwd()) {
   if (mode === 'local') {
     throw new Error(
       '"local" cannot be used as a mode name because it conflicts with ' +
@@ -87,4 +87,4 @@ function loadEnv(mode, root) {
  * Loads environments from files in Vite-style but loads ALL environments
  * @see https://github.com/vitejs/vite#modes-and-environment-variables
  */
-module.exports = loadEnv(process.env.NODE_ENV, process.cwd())
+module.exports.default = module.exports.loadEnv(process.env.NODE_ENV)

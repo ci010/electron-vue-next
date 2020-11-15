@@ -8,7 +8,7 @@ import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
-const env = require('./env.js')
+const env = require('./env.js').default
 
 // user env variables loaded from .env files.
 // only those prefixed with VITE_ are exposed.

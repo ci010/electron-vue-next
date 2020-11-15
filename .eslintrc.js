@@ -31,6 +31,7 @@ module.exports = {
     'import/no-absolute-path': 0
   },
   ignorePatterns: [
+    'src/shared/env.d.ts',
     'node_modules/**',
     'dist/**'
   ]

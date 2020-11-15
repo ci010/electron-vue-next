@@ -1,14 +1,11 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars, no-undef */
 
 /**
  * @see https://github.com/vitejs/vite/blob/03acecd797d8393e38c8a78f920c8e0927762018/importMeta.d.ts
  */
-declare interface ImportMetaEnv {
+declare interface ImportMetaEnvBase {
   [key: string]: string | boolean | undefined
-  BASE_URL: string
-  MODE: string
-  DEV: boolean
-  PROD: boolean
+  BASE_URL?: string
 }
 
 /**
@@ -31,5 +28,5 @@ declare interface ImportMeta {
     on(event: string, cb: (...args: any[]) => void): void
   }
 
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv & ImportMetaEnvBase
 }
