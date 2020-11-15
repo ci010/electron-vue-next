@@ -2,12 +2,13 @@ import pluginAlias from '@rollup/plugin-alias'
 import pluginCommonJs from '@rollup/plugin-commonjs'
 import pluginJson from '@rollup/plugin-json'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import pluginReplace from '@rollup/plugin-replace'
 import pluginTypescript from '@rollup/plugin-typescript'
 import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
+import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
+
 const env = require('./env.js')
 
 // user env variables loaded from .env files.
@@ -80,15 +81,19 @@ const config = ({
         '/@shared': join(__dirname, '../src/shared')
       }
     }),
-    pluginReplace({
-      ...userEnvReplacements,
-      ...builtInEnvReplacements,
-      'import.meta.env.': '({}).',
-      'import.meta.env': JSON.stringify({
-        ...userClientEnv,
-        ...builtInClientEnv
-      })
-    }),
+    createReplacePlugin(
+      (id) => id.endsWith('.ts') || id.endsWith('.js'),
+      {
+        ...userEnvReplacements,
+        ...builtInEnvReplacements,
+        'import.meta.env.': '({}).',
+        'import.meta.env': JSON.stringify({
+          ...userClientEnv,
+          ...builtInClientEnv
+        },
+        true
+        )
+      }),
     typescriptPluginInstance,
     {
       name: 'main:esbuild',
