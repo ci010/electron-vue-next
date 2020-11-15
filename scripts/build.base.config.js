@@ -6,7 +6,8 @@ const config = {
   productName: '',
   appId: '',
   directories: {
-    output: 'build'
+    output: 'build',
+    buildResources: 'build'
   },
   // assign publish for auto-updater
   // set this to your own repo!
