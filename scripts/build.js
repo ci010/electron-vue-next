@@ -1,14 +1,13 @@
 process.env.NODE_ENV = 'production'
 
-const { join, relative, sep } = require('path')
+const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
-const { stat, remove, copy } = require('fs-extra')
+const { stat, remove, copy, writeFile } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const env = require('./env')
-const builtins = require('builtin-modules')
 
 /**
  * Load rollup config
@@ -27,42 +26,20 @@ async function loadRollupConfig() {
 }
 
 /**
- * Resolve all dependencies used by main process
- * @param {import('rollup').RollupOptions} config
+ * Generate the distribution version of package json
  */
-async function analyzeDependencies(config) {
-  const dir = join(__dirname, '..')
-  const builtinSet = new Set([...builtins, 'electron'])
-  const resultSet = new Set()
-  const includedPackages = new Set()
-  const { dependencies } = require('../package-lock.json')
-  await rollup({
-    ...config,
-    onwarn(warn) { /* ignore */ },
-    external(source, importer, resolved) {
-      if (builtinSet.has(source)) {
-        return true
-      }
-      const relativePath = relative(dir, source)
-      if (relativePath.startsWith('node_modules') && resolved) {
-        const [, nameOrOrg, ...rest] = relativePath.split(sep)
-        if (nameOrOrg.startsWith('@')) {
-          resultSet.add('node_modules' + sep + nameOrOrg + sep + rest[0] + sep + 'package.json')
-          includedPackages.add(`${nameOrOrg}/${rest[0]}`)
-        } else {
-          resultSet.add('node_modules' + sep + nameOrOrg + sep + 'package.json')
-          includedPackages.add(nameOrOrg)
-        }
-        resultSet.add(relativePath)
-      }
-      return false
-    }
-  }).catch((e) => { })
-  return [
-    // @ts-ignore
-    ...[...includedPackages].map((name) => `node_modules/${name}`),
-    ...Object.keys(dependencies).filter((name) => !includedPackages.has(name)).map((name) => `!node_modules/${name}`)
-  ]
+async function generatePackageJson() {
+  const original = require('../package.json')
+  const result = {
+    name: original.name,
+    author: original.author,
+    version: original.version,
+    license: original.license,
+    description: original.description,
+    main: './electron/index.prod.js',
+    dependencies: Object.entries(original.dependencies).filter(([name, version]) => original.external.indexOf(name) !== -1).reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {})
+  }
+  await writeFile('dist/package.json', JSON.stringify(result))
 }
 
 /**
@@ -174,13 +151,10 @@ async function start() {
   await buildMain(rollupConfig)
   await Promise.all([buildRenderer(), copyStatic()])
 
-  const result = await analyzeDependencies(rollupConfig)
   if (process.env.BUILD_TARGET) {
     const config = loadElectronBuilderConfig()
-    if (config.files instanceof Array) {
-      config.files.push(...result)
-    }
     const dir = process.env.BUILD_TARGET === 'dir'
+    await generatePackageJson()
     await buildElectron(config, dir)
   }
 }

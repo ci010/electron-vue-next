@@ -342,7 +342,7 @@ The only exception is the `useDialog`. You can only use `async` functions in it 
 
 ### Dependencies Management
 
-If you adding a new dependency, make sure if it's using any **nodejs** module, add it as `excludeOptimize` in the `package.json`. Otherwise, the vite will complain about "I cannot handle it!".
+If you adding a new dependency, make sure if it's using any **nodejs** module, add it as `external` in the `package.json`. Otherwise, the vite will complain about "I cannot handle it!".
 
 ```json
 {
@@ -351,7 +351,7 @@ If you adding a new dependency, make sure if it's using any **nodejs** module, a
     // ...other dependencies
     "a-nodejs-package": "<version>"
   },
-  "excludeOptimize": [
+  "external": [
     // ...other existed excluded packages
     "a-nodejs-package" // your new package
   ],

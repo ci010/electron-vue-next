@@ -9,7 +9,7 @@ import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
 import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
 
-import { excludeOptimize } from '../package.json'
+import { external } from '../package.json'
 const env = require('./env.js')
 
 // user env variables loaded from .env files.
@@ -64,7 +64,7 @@ const config = ({
       console.log(chalk.yellow(warning.toString()))
     }
   },
-  external: [...builtins, 'electron', ...excludeOptimize],
+  external: [...builtins, 'electron', ...external],
   plugins: [
     {
       name: 'typechecker',

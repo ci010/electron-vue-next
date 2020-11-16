@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const { createServer } = require('vitepress')
-const { excludeOptimize } = require('../package.json')
+const { external } = require('../package.json')
 
 const port = 3000
 
@@ -9,7 +9,7 @@ async function startVitepress() {
     const server = await createServer({
       root: 'docs',
       optimizeDeps: {
-        exclude: excludeOptimize
+        exclude: external
       }
     })
     server.listen(port, () => {
