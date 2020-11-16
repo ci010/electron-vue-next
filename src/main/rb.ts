@@ -2,22 +2,25 @@ import { app, BrowserWindow } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import { format } from 'url'
-// import './dialog'
-// import { Logger } from './logger'
-// import { initialize } from './services'
+// import isDev from './isDev'
+// import reloader from 'electron-reloader'
 
+// isDev && reloader(module)
 
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({ width: 800, height: 600 })
 
+  console.log(join(__dirname, 'index.html'))
 
   // and load the index.html of the app.
   mainWindow.loadURL(
     format({
-      pathname: join(__dirname, 'renderer', 'index.html'),
+      pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true
     })
@@ -35,14 +38,15 @@ function createWindow() {
   })
 }
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
 
-// ensure app start as single instance
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-}
-
-app.on('window-all-closed', () => {
+// Quit when all windows are closed.
+app.on('window-all-closed', function() {
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     app.quit()
   }
@@ -59,11 +63,11 @@ app.on('activate', function() {
 console.log(import.meta.env)
 
 if (import.meta.env.DEV) {
-  console.log('DEEEV')
+  console.log("DEEEV");
 }
 
 if (import.meta.env.PROD) {
-  console.log('PROOOOD')
+  console.log('PROOOOD');
 }
 
 autoUpdater.checkForUpdatesAndNotify()
