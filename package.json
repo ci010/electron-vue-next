@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "description": "",
-  "main": "./dist/electron/index.prod.js",
   "scripts": {
     "dev:docs": "node scripts/dev.docs.js",
     "dev": "node scripts/dev.js",
@@ -26,7 +25,7 @@
     "vue-router": "^4.0.0-beta.13",
     "vuex": "^4.0.0-beta.4"
   },
-  "excludeOptimize": [
+  "external": [
     "electron-updater"
   ],
   "devDependencies": {

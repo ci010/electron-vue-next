@@ -350,7 +350,7 @@ The only exception is the `useDialog`. You can only use `async` functions in it 
 
 ### 管理依赖
 
-如果你想添加新的 npm 包作为依赖使用，你需要注意这个依赖是不是一个基于 nodejs 的模块。如果它是一个 nodejs 的包，你需要把这个包名放进 `package.json` 的 `excludeOptimize` 列表中。这个列表是用于告诉 vite 不要优化某些依赖，如果你不在这里剔除他们，vite就会抱怨说“我优化不了这些！”之类的话。
+如果你想添加新的 npm 包作为依赖使用，你需要注意这个依赖是不是一个基于 nodejs 的模块。如果它是一个 nodejs 的包，你需要把这个包名放进 `package.json` 的 `external` 列表中。这个列表是用于告诉 vite 不要优化某些依赖，如果你不在这里剔除他们，vite就会抱怨说“我优化不了这些！”之类的话。
 
 
 ```json
@@ -360,7 +360,7 @@ The only exception is the `useDialog`. You can only use `async` functions in it 
     // ...other dependencies
     "a-nodejs-package": "<version>"
   },
-  "excludeOptimize": [
+  "external": [
     // ...other existed excluded packages
     "a-nodejs-package" // your new package
   ],

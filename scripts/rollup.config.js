@@ -9,6 +9,7 @@ import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
 import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
 
+import { external } from '../package.json'
 const env = require('./env.js')
 
 // user env variables loaded from .env files.
@@ -63,7 +64,7 @@ const config = ({
       console.log(chalk.yellow(warning.toString()))
     }
   },
-  external: [...builtins, 'electron'],
+  external: [...builtins, 'electron', ...external],
   plugins: [
     {
       name: 'typechecker',
@@ -90,10 +91,9 @@ const config = ({
         'import.meta.env': JSON.stringify({
           ...userClientEnv,
           ...builtInClientEnv
-        },
-        true
-        )
-      }),
+        })
+      },
+      true),
     typescriptPluginInstance,
     {
       name: 'main:esbuild',
@@ -125,6 +125,9 @@ const config = ({
         }
       },
       async transform(code, id) {
+        if (id.endsWith('js') || id.endsWith('js?commonjs-proxy')) {
+          return
+        }
         function printMessage(m, code) {
           console.error(chalk.yellow(m.text))
           if (m.location) {

@@ -4,34 +4,54 @@ const { join } = require('path')
 const { build } = require('vite')
 const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
-const { stat, remove, copy } = require('fs-extra')
+const { stat, remove, copy, writeFile } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const env = require('./env')
 
 /**
- * Use typescript to build main process
+ * Load rollup config
+ * @returns {Promise<import('rollup').RollupOptions>}
  */
-async function buildMain() {
+async function loadRollupConfig() {
+  console.log(chalk.bold.underline('Build main process'))
+
+  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
+    input: join(__dirname, '../src/main/index.prod.ts')
+  })
+
+  warnings.flush()
+
+  return options[0]
+}
+
+/**
+ * Generate the distribution version of package json
+ */
+async function generatePackageJson() {
+  const original = require('../package.json')
+  const result = {
+    name: original.name,
+    author: original.author,
+    version: original.version,
+    license: original.license,
+    description: original.description,
+    main: './electron/index.prod.js',
+    dependencies: Object.entries(original.dependencies).filter(([name, version]) => original.external.indexOf(name) !== -1).reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {})
+  }
+  await writeFile('dist/package.json', JSON.stringify(result))
+}
+
+/**
+ * Use typescript to build main process
+ * @param {import('rollup').RollupOptions} config
+ */
+async function buildMain(config) {
   await Promise.all([
     remove(join(__dirname, '../dist/electron/index.dev.js')),
     remove(join(__dirname, '../dist/electron/index.dev.js.map'))
   ])
   const start = Date.now()
-
-  console.log(chalk.bold.underline('Build main process'))
-
-  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
-    input: join(__dirname, '../src/main/index.prod.ts'),
-    environment: 'BUILD:PRODUCTION'
-  })
-
-  warnings.flush()
-
-  /**
-   * @type {import('rollup').RollupOptions}
-   */
-  const config = options[0]
 
   const bundle = await rollup(config)
   // @ts-expect-error
@@ -57,7 +77,7 @@ async function buildMain() {
 /**
  * Use vite to build renderer process
  */
-function buildRenderer () {
+function buildRenderer() {
   const config = require('./vite.config')
 
   config.env = config.env || {}
@@ -117,7 +137,7 @@ async function start() {
   /**
    * Load electron-builder Configuration
    */
-  function loadConfig() {
+  function loadElectronBuilderConfig() {
     switch (process.env.BUILD_TARGET) {
       case 'production':
         return require('./build.config')
@@ -126,12 +146,15 @@ async function start() {
     }
   }
 
-  await buildMain()
+  const rollupConfig = await loadRollupConfig()
+
+  await buildMain(rollupConfig)
   await Promise.all([buildRenderer(), copyStatic()])
 
   if (process.env.BUILD_TARGET) {
-    const config = loadConfig()
+    const config = loadElectronBuilderConfig()
     const dir = process.env.BUILD_TARGET === 'dir'
+    await generatePackageJson()
     await buildElectron(config, dir)
   }
 }
