@@ -91,10 +91,9 @@ const config = ({
         'import.meta.env': JSON.stringify({
           ...userClientEnv,
           ...builtInClientEnv
-        },
-        true
-        )
-      }),
+        })
+      },
+      true),
     typescriptPluginInstance,
     {
       name: 'main:esbuild',
