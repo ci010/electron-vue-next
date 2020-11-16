@@ -85,7 +85,7 @@ function reloadElectron() {
  * Start vite dev server for renderer process and listen 8080 port
  */
 function startRenderer() {
-  const config = require('./vite.config')
+  const config = require('vite.config.js')
 
   config.mode = process.env.NODE_ENV
 

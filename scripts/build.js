@@ -16,7 +16,7 @@ const env = require('./env')
 async function loadRollupConfig() {
   console.log(chalk.bold.underline('Build main process'))
 
-  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'))
+  const { options, warnings } = await loadConfigFile(join(process.cwd(), './rollup.config.js'))
 
   warnings.flush()
 
@@ -75,7 +75,7 @@ async function buildMain(config) {
  * Use vite to build renderer process
  */
 function buildRenderer() {
-  const config = require('./vite.config')
+  const config = require('../vite.config.js')
 
   config.env = config.env || {}
 
@@ -143,7 +143,7 @@ async function start() {
 
   const rollupConfig = await loadRollupConfig()
 
-  await buildMain(rollupConfig)
+  // await buildMain(rollupConfig)
   await Promise.all([buildRenderer(), copyStatic()])
 
   if (process.env.BUILD_TARGET) {

@@ -1,25 +1,24 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "ESNext",
     "module": "ESNext",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "strict": true,
     "moduleResolution": "node",
     "baseUrl": ".",
+
+    "sourceMap": true,
+
     "paths": {
       "/@shared/*": [
-        "src/shared/*"
+        "./src/shared/*"
       ],
       "/@/*": [
-        "src/renderer/*"
+        "./src/renderer/*"
       ],
       "/@main/*": [
-        "src/main/*"
+        "./src/main/*"
       ]
     },
     "esModuleInterop": true,
@@ -30,7 +29,7 @@
   "include": [
     "src/main/**/*",
     "src/shared/**/*",
-    "src/renderer/renderer.d.ts",
+    "src/renderer/**/*"
   ],
   "exclude": [
     "node_modules"

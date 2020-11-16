@@ -1,16 +1,16 @@
 // import pluginAlias from '@rollup/plugin-alias'
-// import pluginCommonJs from '@rollup/plugin-commonjs'
+import commonJs from '@rollup/plugin-commonjs'
 // import pluginJson from '@rollup/plugin-json'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import pluginTypescript from '@rollup/plugin-typescript'
 import builtins from 'builtin-modules'
 // import chalk from 'chalk'
 // import { startService } from 'esbuild'
-import { join } from 'path'
+// import { join } from 'path'
 import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
 
-import { external } from '../package.json'
-const env = require('./env.js')
+import { external } from './package.json'
+const env = require('./scripts/env.js')
 
 // user env variables loaded from .env files.
 // only those prefixed with VITE_ are exposed.
@@ -52,9 +52,9 @@ Object.keys(builtInClientEnv).forEach((key) => {
  * @type {import('rollup').RollupOptions}
  */
 const config = ({
-  input: join(__dirname, '../src/main/index.ts'),
+  input: './src/main/index.ts',
   output: {
-    dir: join(__dirname, '../dist/source'),
+    dir: './dist/source',
     format: 'cjs',
   },
   // onwarn: (warning) => {
@@ -69,6 +69,12 @@ const config = ({
   // },
   external: [...builtins, 'electron', ...external],
   plugins: [
+    nodeResolve({
+      browser: false
+    }),
+    commonJs({
+      extensions: ['.js', '.cjs']
+    }),
     // {
     //   name: 'typechecker',
     //   generateBundle() {
@@ -98,7 +104,7 @@ const config = ({
       },
       true),
     pluginTypescript({
-      tsconfig: join(__dirname, '../src/main/tsconfig.json')
+      tsconfig: './tsconfig.json'
     }),
     // {
     //   name: 'main:esbuild',
@@ -182,12 +188,8 @@ const config = ({
     //     }
     //   }
     // },
-    nodeResolve({
-      browser: false
-    }),
-    // pluginCommonJs({
-    //   extensions: ['.js', '.cjs']
-    // }),
+
+
     // pluginJson({
     //   preferConst: true,
     //   indent: '  ',
