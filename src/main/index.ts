@@ -1,11 +1,10 @@
 import { app, BrowserWindow } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
-import { format } from 'url'
+// import { format } from 'url'
 // import './dialog'
 // import { Logger } from './logger'
 // import { initialize } from './services'
-
 
 let mainWindow: BrowserWindow | null
 
@@ -13,14 +12,12 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({ width: 800, height: 600 })
 
+  console.log(join(__dirname, './renderer/index.html'));
 
   // and load the index.html of the app.
-  mainWindow.loadURL(
-    format({
-      pathname: join(__dirname, 'renderer', 'index.html'),
-      protocol: 'file:',
-      slashes: true
-    })
+  mainWindow.loadURL(import.meta.env.PROD
+    ? join(__dirname, './renderer/index.html')
+    : 'http://localhost:3000/index.html'
   )
 
   // Open the DevTools.
@@ -59,7 +56,7 @@ app.on('activate', function() {
 console.log(import.meta.env)
 
 if (import.meta.env.DEV) {
-  console.log('DEEEV')
+  console.log('DEEEV 2 3')
 }
 
 if (import.meta.env.PROD) {

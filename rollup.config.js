@@ -57,6 +57,7 @@ const config = ({
     dir: './dist/source',
     format: 'cjs',
   },
+  sourcemap: true,
   // onwarn: (warning) => {
   //   if (warning.plugin === 'typescript') {
   //     // @ts-ignore

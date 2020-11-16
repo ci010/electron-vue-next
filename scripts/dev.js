@@ -2,12 +2,12 @@ process.env.NODE_ENV = 'development'
 
 const electron = require('electron')
 const { spawn } = require('child_process')
-const { join } = require('path')
+const { join, resolve } = require('path')
 const { createServer } = require('vite')
 const chalk = require('chalk')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
-const { EOL } = require('os')
+// const { EOL } = require('os')
 
 const env = require('./env')
 
@@ -26,33 +26,33 @@ function startElectron() {
   const electronPath = electron
   const spawnProcess = spawn(
     electronPath,
-    ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
+    ['--inspect=5858', '--remote-debugging-port=9222', '.']
   )
 
   /**
    * @param {string | Buffer} data
    */
-  function electronLog(data) {
-    const colorize = (line) => {
-      if (line.startsWith('[INFO]')) {
-        return chalk.green('[INFO]') + line.substring(6)
-      } else if (line.startsWith('[WARN]')) {
-        return chalk.yellow('[WARN]') + line.substring(6)
-      } else if (line.startsWith('[ERROR]')) {
-        return chalk.red('[ERROR]') + line.substring(7)
-      }
-      return chalk.grey('[console] ') + line
-    }
-    console.log(
-      data.toString()
-        .split(EOL)
-        .filter(s => s.trim() !== '')
-        .map(colorize).join(EOL)
-    )
-  }
+  // function electronLog(data) {
+  //   const colorize = (line) => {
+  //     if (line.startsWith('[INFO]')) {
+  //       return chalk.green('[INFO]') + line.substring(6)
+  //     } else if (line.startsWith('[WARN]')) {
+  //       return chalk.yellow('[WARN]') + line.substring(6)
+  //     } else if (line.startsWith('[ERROR]')) {
+  //       return chalk.red('[ERROR]') + line.substring(7)
+  //     }
+  //     return chalk.grey('[console] ') + line
+  //   }
+  //   console.log(
+  //     data.toString()
+  //       .split(EOL)
+  //       .filter(s => s.trim() !== '')
+  //       .map(colorize).join(EOL)
+  //   )
+  // }
 
-  spawnProcess.stdout.on('data', electronLog)
-  spawnProcess.stderr.on('data', electronLog)
+  // spawnProcess.stdout.on('data', electronLog)
+  // spawnProcess.stderr.on('data', electronLog)
   spawnProcess.on('exit', (_, signal) => {
     if (!manualRestart) {
       // if (!devtoolProcess.killed) {
@@ -85,7 +85,7 @@ function reloadElectron() {
  * Start vite dev server for renderer process and listen 8080 port
  */
 function startRenderer() {
-  const config = require('vite.config.js')
+  const config = require('../vite.config.js')
 
   config.mode = process.env.NODE_ENV
 
@@ -100,10 +100,7 @@ function startRenderer() {
 }
 
 async function startMain() {
-  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
-    input: join(__dirname, '../src/main/index.dev.ts'),
-    sourcemap: true
-  })
+  const { options, warnings } = await loadConfigFile(join(process.cwd(), 'rollup.config.js'))
 
   warnings.flush()
 
