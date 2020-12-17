@@ -1,64 +1,30 @@
 {
-  "name": "electron-vue-next",
+  "name": "create-electron-vue-next-app",
   "version": "0.0.0",
-  "private": true,
   "description": "",
   "scripts": {
     "dev:docs": "node scripts/dev.docs.js",
-    "dev": "node scripts/dev.js",
-    "build": "node scripts/build.js",
+    "dev": "npm run dev --prefix electron-vue-next",
+    "build": "npm run build --prefix electron-vue-next",
     "build:docs": "vitepress build docs",
-    "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
-    "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
-    "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
-    "lint": "eslint --ext .ts,.vue,.js src scripts",
+    "build:dir": "npm run build:dir --prefix electron-vue-next",
+    "build:lite": "npm run build:lite --prefix electron-vue-next",
+    "build:production": "npm run build:production --prefix electron-vue-next",
+    "lint": "eslint --ext .ts,.vue,.js --config electron-vue-next/.eslintrc.js electron-vue-next/src electron-vue-next/scripts index.js scripts",
     "lint:fix": "npm run lint -- --fix"
   },
   "author": {
-    "email": "example@email.com",
-    "name": "example"
+    "email": "cijhn@hotmail.com",
+    "name": "ci010"
   },
   "license": "MIT",
-  "dependencies": {
-    "electron-updater": "^4.3.5",
-    "vue": "^3.0.2",
-    "vue-router": "^4.0.0-beta.13",
-    "vuex": "^4.0.0-beta.4"
-  },
-  "external": [
-    "electron-updater"
+  "workspaces": [
+    "electron-vue-next"
   ],
-  "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.1",
-    "@rollup/plugin-commonjs": "^16.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^6.1.0",
-    "@vue/compiler-sfc": "^3.0.2",
-    "builtin-modules": "^3.1.0",
-    "chalk": "^4.1.0",
-    "cross-env": "^7.0.2",
-    "dotenv": "^8.2.0",
-    "electron": "^10.1.2",
-    "electron-builder": "^22.9.1",
-    "esbuild": "^0.6.33",
-    "fs-extra": "^9.0.1",
-    "rollup": "^2.28.2",
-    "tslib": "^1.14.1",
-    "typescript": "^4.0.3",
-    "vite": "^1.0.0-rc.6"
+  "dependencies": {
+    "electron-vue-next": "^0.0.0"
   },
-  "optionalDependencies": {
-    "@types/node": "^14.14.7",
-    "@typescript-eslint/eslint-plugin": "^4.7.0",
-    "@typescript-eslint/parser": "^4.7.0",
-    "eslint": "^7.13.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.2",
-    "eslint-plugin-vue": "^7.1.0",
+  "devDependencies": {
     "vitepress": "^0.7.4"
   }
 }
