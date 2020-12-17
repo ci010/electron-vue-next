@@ -145,6 +145,9 @@ const config = ({
           }
         }
         try {
+          /**
+           * @type {import('esbuild').Service}
+           */
           const service = this.cache.get('service')
           const result = await service.transform(code, {
             // @ts-ignore
@@ -158,8 +161,8 @@ const config = ({
             result.warnings.forEach((m) => printMessage(m, code))
           }
           return {
-            code: result.js,
-            map: result.jsSourceMap
+            code: result.code,
+            map: result.map
           }
         } catch (e) {
           console.error(
