@@ -38,7 +38,8 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
 
 ## Getting Started
 
-Clone or fork this project to start.
+Run `npm init electron-vue-next`
+
 Once you have your project, and in the project folder:
 
 ```shell
