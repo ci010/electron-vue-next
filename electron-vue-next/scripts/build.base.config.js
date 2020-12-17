@@ -5,6 +5,7 @@
 const config = {
   productName: '',
   appId: '',
+  electronVersion: process.env.ELECTRON_VERSION, // only used for development debugging
   directories: {
     output: 'build',
     buildResources: 'build',
