@@ -7,3 +7,4 @@ vetur.config.js
 docs
 scripts
 .gitignore
+/.github
