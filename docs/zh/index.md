@@ -24,6 +24,8 @@ This repository contains the starter template for using vue-next with the latest
 - 和 VSCode 集成
   - 自带 VSCode 的 Debug 配置。可以在 VSCode 中 debug typescript 和 vue 文件，main 和 renderer 的都可以。
   - 具体实现细节可以看 [Debug](#在-vscode-中-debug) 这个章节
+- 支持多窗口
+  - 可以简单地让 App 增加一个新的窗口，详情参见 [如何添加一个新的窗口](#添加一个新的窗口)
 
 ## 上手指南
 
@@ -378,6 +380,37 @@ If you want to use the native dependencies, which need to compile when install. 
 
 If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail. The development process won't affect much by it.
 
+### 添加一个新的窗口
+
+1. 在 `src/renderer` 下添加一个新的 html 文件
+2. 在新添加的 html 文件中引用你新写的 ts/js 文件
+3. 在主进程 `main/index.ts` 中加入一段创建此窗口的代码
+
+例如你在 `src/renderer` 下面新增加了 `side.html` ，你需要在 `index.ts` 中加入类似以下代码：
+
+```ts
+
+// 这个方法应该在启动的时候被调用
+function createANewWindow() {
+  // 这部分和之前都一样，根据自己需求改
+  const win = new BrowserWindow({
+    height: 600,
+    width: 300,
+    webPreferences: {
+      preload: join(__static, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // __windowUrls.side 就是指向你新添加的 html 的 url
+  win.loadURL(__windowUrls.side)
+}
+
+```
+
+在 `scripts/vite.config.js` 中会自动扫描 `src/renderer` 下的所有 html 文件，所以一般来说你不需要改 vite 的配置文件。
+当然你可以参照 [vite 的官方文档](https://vitejs.dev/guide/build.html#multi-page-app)来更加自定义多页面的功能。
 
 ### 在 VSCode 中 Debug
 

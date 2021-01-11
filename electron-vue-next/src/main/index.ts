@@ -9,7 +9,10 @@ async function main() {
   logger.initialize(app.getPath('userData'))
   initialize(logger)
   app.whenReady().then(() => {
-    createWindow()
+    const main = createWindow()
+    const [x, y] = main.getPosition()
+    const side = createSecondWindow()
+    side.setPosition(x + 800 + 5, y)
   })
 }
 
@@ -26,6 +29,22 @@ function createWindow() {
   })
 
   mainWindow.loadURL(__windowUrls.index)
+  return mainWindow
+}
+
+function createSecondWindow() {
+  const sideWindow = new BrowserWindow({
+    height: 600,
+    width: 300,
+    webPreferences: {
+      preload: join(__static, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  sideWindow.loadURL(__windowUrls.side)
+  return sideWindow
 }
 
 // ensure app start as single instance

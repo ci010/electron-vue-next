@@ -22,6 +22,8 @@ This repository contains the starter template for using vue-next with the latest
 - Integrate VSCode well
   - Support debug .ts/.vue files in main/renderer process by vscode debugger
   - Detail see [Debug](#debugging) section
+- Multiple Windows Support
+  - Can add a new window for App easily. See [Add a New Window](#add-a-new-window) section
 
 ## Quick Start
 
@@ -368,6 +370,38 @@ If you want to use the native dependencies, which need to compile when install. 
 #### Dependencies Contains Compiled Binary
 
 If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail. The development process won't affect much by it.
+
+### Add a New Window
+
+1. Add a new html file under the `src/renderer`
+2. Reference some typescript/javascript file in you new added html file
+3. Add a code block in your `src/main/index.ts` to control the creation of this window
+
+For example, you just added a `side.html` under the `src/renderer`. You need to add such controller code in `index.ts`:
+
+```ts
+
+// This function should be called once app is ready
+function createANewWindow() {
+  // this part is the same as before, modify it as your wish
+  const win = new BrowserWindow({
+    height: 600,
+    width: 300,
+    webPreferences: {
+      preload: join(__static, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // __windowUrls.side is pointing to the real url of `side.html`
+  win.loadURL(__windowUrls.side)
+}
+
+```
+
+The `scripts/vite.config.js` will automatically scan all html files under the `src/renderer`. So, you do not need to touch the any vite/rollup config files.
+But, if you want more customization, you can refer the [official vite document](https://vitejs.dev/guide/build.html#multi-page-app) about the multi-page app!
 
 ### Debugging
 

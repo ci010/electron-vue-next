@@ -7,7 +7,7 @@ const { build: electronBuilder } = require('electron-builder')
 const { stat, remove, copy, writeFile } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
-const env = require('./env')
+// const env = require('./env')
 
 /**
  * Load rollup config
@@ -80,21 +80,20 @@ async function buildMain(config) {
 function buildRenderer() {
   const config = require('./vite.config')
 
-  config.env = config.env || {}
+  // vite 2 remove this options
+  // config.env = config.env || {}
 
-  for (const [key, value] of Object.entries(env)) {
-    if (key.startsWith('VITE_')) {
-      config.env[key] = value
-    }
-  }
+  // for (const [key, value] of Object.entries(env)) {
+  //   if (key.startsWith('VITE_')) {
+  //     config.env[key] = value
+  //   }
+  // }
 
   console.log(chalk.bold.underline('Build renderer process'))
 
   return build({
     ...config,
-    mode: process.env.NODE_ENV,
-    outDir: join(__dirname, '../dist/electron/renderer'),
-    assetsInlineLimit: 0
+    mode: process.env.NODE_ENV
   })
 }
 
@@ -151,6 +150,7 @@ async function start() {
   await buildMain(rollupConfig)
   await Promise.all([buildRenderer(), copyStatic()])
 
+  console.log()
   if (process.env.BUILD_TARGET) {
     const config = loadElectronBuilderConfig()
     const dir = process.env.BUILD_TARGET === 'dir'

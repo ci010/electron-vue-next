@@ -6,7 +6,7 @@
     "create-electron-vue-next": "index.js"
   },
   "scripts": {
-    "dev:docs": "node scripts/dev.docs.js",
+    "dev:docs": "cross-env NODE_ENV=development node scripts/dev.docs.js",
     "dev": "npm run dev --prefix electron-vue-next",
     "build": "npm run build --prefix electron-vue-next",
     "build:docs": "vitepress build docs",
@@ -25,12 +25,13 @@
     "electron-vue-next"
   ],
   "dependencies": {
+    "@vitejs/plugin-vue": "^1.0.5",
     "commander": "^6.2.0",
     "electron-vue-next": "^0.0.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3"
   },
   "devDependencies": {
-    "vitepress": "^0.7.4"
+    "vitepress": "^0.10.8"
   }
 }

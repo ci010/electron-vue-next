@@ -14,6 +14,7 @@ const themeConfig = {
   nextLink: true,
   locales: {
     '/': {
+      docsDir: 'docs',
       lang: 'en-US',
       title: 'vue-electron-next',
       description: 'vue hooks',
@@ -21,6 +22,7 @@ const themeConfig = {
       selectText: 'Languages',
     },
     '/zh/': {
+      docsDir: 'docs',
       lang: 'zh-CN',
       title: 'vue-electron-next',
       description: 'vue hooks',
