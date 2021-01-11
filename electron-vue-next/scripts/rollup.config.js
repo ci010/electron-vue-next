@@ -7,6 +7,7 @@ import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
+// @ts-ignore
 import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
 
 import { external } from '../package.json'

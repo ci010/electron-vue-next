@@ -12,14 +12,14 @@ const options = {
   projectName: 'electron-vue-next',
   nodeIntegration: false,
   mainService: true,
-  vscode: true,
+  vscode: true
 }
 
 const provided = {
   nodeIntegration: false,
   name: false,
   service: false,
-  vscode: false,
+  vscode: false
 }
 
 program
@@ -68,7 +68,7 @@ async function interactive(name) {
       name: 'mainService',
       when: !provided.service
     },
-    { type: 'confirm', default: true, message: 'Generate vscode debug config:', name: 'vscode', when: !provided.vscode },
+    { type: 'confirm', default: true, message: 'Generate vscode debug config:', name: 'vscode', when: !provided.vscode }
   ])
   options.projectName = projectName
   options.nodeIntegration = nodeIntegration
