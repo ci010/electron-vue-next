@@ -36,24 +36,8 @@ const themeConfig = {
 const config = {
   lang: 'en-US',
   themeConfig,
-  base: '/electron-vue-next',
+  base: process.env.NODE_ENV === 'development' ? undefined : '/electron-vue-next',
   title: 'Electron Vue Next',
-  locales: {
-    '/': {
-      lang: 'en-US',
-      title: 'vue-electron-next',
-      description: 'vue hooks',
-      label: 'English',
-      selectText: 'Languages',
-    },
-    '/zh/': {
-      lang: 'zh-CN',
-      title: 'vue-electron-next',
-      description: 'vue hooks',
-      label: '中文',
-      selectText: '语言',
-    },
-  },
 }
 
 module.exports = config;

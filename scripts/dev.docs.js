@@ -1,6 +1,7 @@
 const chalk = require('chalk')
 const { createServer } = require('vitepress')
-const { external } = require('../package.json')
+const { external } = require('../electron-vue-next/package.json')
+const { dependencies } = require('../package.json')
 
 const port = 3000
 
@@ -9,7 +10,7 @@ async function startVitepress() {
     const server = await createServer({
       root: 'docs',
       optimizeDeps: {
-        exclude: external
+        exclude: [...external, ...Object.keys(dependencies)]
       }
     })
     server.listen(port, () => {

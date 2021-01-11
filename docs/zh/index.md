@@ -9,21 +9,21 @@ This repository contains the starter template for using vue-next with the latest
 ## 特性清单
 
 - Electron 10
-  - Follow the [security](https://www.electronjs.org/docs/tutorial/security) guide of electron, make renderer process a browser only environment
-  - Using [electron-builder](https://github.com/electron-userland/electron-builder) to build
-- Empower [vue-next](https://github.com/vuejs/vue-next) and its eco-system
-  - Using [vite](https://github.com/vitejs/vite) which means develop renderer process can be blazingly fast!
-  - Using [vuex 4.0](https://github.com/vuejs/vuex/tree/4.0) with strong type state, getters, and commit
-  - Using [vue-router-next](https://github.com/vuejs/vue-router-next)
-- Using [eslint](https://www.npmjs.com/package/eslint) with Javascript Standard by default
-- Built-in TypeScript Support
-  - Using [esbuild](https://github.com/evanw/esbuild) in [rollup](https://github.com/rollup/rollup) (align with vite) to build main process typescript code 
-- Github Action with Github Release is out-of-box
-  - Auto bump version in package.json and generate CHANGELOG.md if you follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0)
-  - Detail how this work described in [Release Process](#release-process) section
-- Integrate VSCode well
-  - Support debug .ts/.vue files in main/renderer process by vscode debugger
-  - Detail see [Debug](#debug-in-vscode) section
+  - 遵从 [ 安全性，原生能力和你的责任 ](https://www.electronjs.org/docs/tutorial/security) 这篇文章的指导，将 renderer 进程配置为纯“浏览器环境”（没有 node 环境）
+  - 使用 [electron-builder](https://github.com/electron-userland/electron-builder) 来构建项目
+- 跟随 [vue-next](https://github.com/vuejs/vue-next) 的新生态
+  - 使用 [vite](https://github.com/vitejs/vite) 来构建 renderer 进程，热重载速度非常之快
+  - 使用 [vuex 4.0](https://github.com/vuejs/vuex/tree/4.0)，并自带类型推断代码，尽可能利用 typescript 的类型系统
+  - 使用了新的 [vue-router-next](https://github.com/vuejs/vue-router-next)
+- 内置 [eslint](https://www.npmjs.com/package/eslint)，默认使用 Javascript Standard
+- 内置 TypeScript
+  - 使用 [esbuild](https://github.com/evanw/esbuild) 和 [rollup](https://github.com/rollup/rollup) 来构建 main 线程的 typescript（和 vite 使用的 esbuild 版本相同）
+- 开箱即用的 Github Action 发布流程
+  - 自动升级版本号并且生成更变日志，只要你的 git commits 遵从 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0)
+  - 具体细节你可以在 [发布](#发布) 这个章节查找
+- 和 VSCode 集成
+  - 自带 VSCode 的 Debug 配置。可以在 VSCode 中 debug typescript 和 vue 文件，main 和 renderer 的都可以。
+  - 具体实现细节可以看 [Debug](#在-vscode-中-debug) 这个章节
 
 ## 上手指南
 
@@ -58,37 +58,37 @@ npm run build:production
 
 ### 文件目录结构
 
-Your workspace should looks like
+整个项目的文件结构大概如此：
 
 ```
 your-project
-├─ scripts                 all dev scripts, build script directory
-├─ build                   build resource and output directory
-│  └─ icons/               build icon directory
+├─ scripts                 所有的脚本文件夹，比如 build 的脚本就在这放着
+├─ build                   build 使用的资源文件，同时也是 build 的输出文件夹
+│  └─ icons/               build 使用的图标文件
 ├─ dist
-│  └─ electron/            compiled output directory
+│  └─ electron/            编译后的js会在这
 ├─ src
 │  ├─ main
-│  │  ├─ dialog.ts         the ipc handler to support dialog API from renderer process
-│  │  ├─ global.ts         typescript global definition
-│  │  ├─ index.dev.ts      the development rollup entry
-│  │  ├─ index.prod.ts     the production rollup entry
-│  │  ├─ index.ts          real electron start-up entry file
-│  │  ├─ logger.ts         a simple logger implementation
+│  │  ├─ dialog.ts         对 electron dialog API 的简单封装，让 renderer 可以使用 dialog
+│  │  ├─ global.ts         typescript 的一些全局定义
+│  │  ├─ index.dev.ts      rollup 开发环境的入口文件
+│  │  ├─ index.prod.ts     rollup 生产环境的入口文件
+│  │  ├─ index.ts          共享的入口文件，基本逻辑都从这开始
+│  │  ├─ logger.ts         一个简单的 Logger
 │  │  └─ staticStore.ts
 │  ├─ renderer
-│  │  ├─ components/       assets directoy
-│  │  ├─ components/       all components
-│  │  ├─ router.ts         vue-router initializer
-│  │  ├─ store.ts          vuex store initializer
-│  │  ├─ App.vue           entry vue file imported by index.ts
-│  │  ├─ index.css         entry css file for vite
-│  │  ├─ index.html        entry html file for vite
-│  │  └─ index.ts          entry script file for vite
-│  └─ shared               shared folder can be access from both main and renderer side
-│     ├─ store/            vuex store definition
-│     └─ sharedLib.ts      an example file that can be access from both side
-├─ static/                 static resource directory
+│  │  ├─ assets/           assets 文件夹
+│  │  ├─ components/       所有 vue components
+│  │  ├─ router.ts         vue-router 初始代码
+│  │  ├─ store.ts          vuex 初始代码
+│  │  ├─ App.vue           Vue 文件的入口文件，被 index.ts 导入
+│  │  ├─ index.css         vite 会编译的 css 的入口文件
+│  │  ├─ index.html        vite 会编译的 html 的入口文件
+│  │  └─ index.ts          vite 会编译的 typescript 的入口文件
+│  └─ shared               在 main 和 renderer 之间共享的代码文件夹，其中代码两边都可以 import 到
+│     ├─ store/            vuex store 的定义
+│     └─ sharedLib.ts      一个简单的 main/renderer 共享模块的例子
+├─ static/                 静态资源文件夹
 ├─ .eslintrc.js
 ├─ .gitignore
 ├─ package.json
@@ -133,30 +133,30 @@ It's the bridge between the main and renderer. You can look at [Service](#servic
 
 #### `npm run dev`
 
-Start the vite dev server hosting the renderer webpage with hot reloading.
-Start the rollup server hosting the main process script. It will auto reload the electron app if you modify the source files.
+开启 vite 开发环境，vite 将提供 renderer （浏览器端）的热重载。
+同时开启一个 rollup 开发环境，检测 main 端的代码变化，如果 main 的代码有变动，它会自动重启你的整个 electron 程序。
 
 #### `npm run build`
 
-Compile both `main` and `renderer` process code to production, located at `dist/electron`
+将 `main` 和 `renderer` 的代码编译到 production 环境, 输出的代码在 `dist/electron`
 
 #### `npm run build:production`
 
-It will compile both processes, and then run `electron-builder` to build your app into executable installer or zip. The build config is defined in [scripts/build.base.config.js](scripts/build.base.config.js).
+编译所有代码，并且使用 `electron-builder` 来你的 app build 成可执行的 exe 文件或者 zip 等。这个的配置文件在 [scripts/build.base.config.js](scripts/build.base.config.js)。
 
 #### `npm run build:dir`
 
-It will compile both processes, and it will run `electron-builder` to build only the directoy version of the production electron app, which for example, for windows x64, it's located at `build/win-unpacked`.
+编译所有代码, 并且使用 `electron-builder` 编译你的 app 到 production 环境，但它只输出文件夹形式的 build （不打包成安装程序），比如对于 windows x64，他会把你的程序编译到 `build/win-unpacked`，并不输出 installer。
 
-This will much faster than `npm run build:production`. So you can use it to quick testing the production app.
+自然，这个会比 `npm run build:production` 快。你可以使用它来快速测试 production 的软件运行状况。
 
 #### `npm run lint`
 
-Run eslint to report eslint error.
+使用 eslint 来检查代码风格。
 
 #### `npm run lint:fix`
 
-Run eslint to fix and report eslint error.
+使用 eslint 来检查代码风格并尽可能的修复。
 
 ## 开发
 
@@ -510,16 +510,16 @@ To optimize for multi-platform, you should also exclude them from `files` of eac
 
 ## 发布
 
-The out-of-box github action will validate each your PR by eslint and run `npm run build`. It will not trigger electron-builder to build production assets.
+自带的 github action 会在你每个 PR 提交的时跑 eslint 和 `npm run build`。并不会做完整的 build （因为 build production 比较花时间，当然你可以自己打开）
 
-For each push in master branch, it will build production assets for win/mac/linux platform and upload it as github action assets. It will also create a **pull request** to asking you to bump version and update the changelog. 
+当有新的 push 进了 master branch，github action 会自动在 windows/mac/linux 上 build 生产环境的代码。如果构建都成功了，除了会把构建的输出上传到 github assets 之外，它还会创建一个 PR，其中给你提升了 package.json 的版本号，并且会写新的 changelog 到 changelog.md 中。
 
-It using the conventional-commit. If you want to auto-generate the changelog, you should follow the [conventional commit guideline](https://www.conventionalcommits.org/en/v1.0.0).
+如果你想要它自动生成 changelog，你得遵循 [conventional commit guideline](https://www.conventionalcommits.org/en/v1.0.0)。
 
-If the **bump version PR** is approved and merged to master, it will auto build and release to github release.
+实际应用中你只需要检查这个 PR，如果没啥问题点击通过，它就会再 build 一遍，并且将结果发布到 github release 上。
 
-**If you want to disable this github action release process, just remove the [.github/workflows/build.yml](/.github/workflows/build.yml) file.**
+**如果你不需要这种自动流程，你可以将以下文件移除 [.github/workflows/build.yml](/.github/workflows/build.yml)**
 
 ### 自动更新的支持
 
-This boilerplate include the [electron-updater](https://github.com/electron-userland/electron-builder/tree/master/packages/electron-updater) as dependencies by default. You can follow the [electron-builder](https://github.com/electron-userland/electron-builder) guideline to implement the autoUpdate process.
+这个模板默认自带了 [electron-updater](https://github.com/electron-userland/electron-builder/tree/master/packages/electron-updater)。你可以参照 [electron-builder](https://github.com/electron-userland/electron-builder) 的流程来实现自动更新。
