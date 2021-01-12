@@ -118,7 +118,6 @@ jobs:
         draft: false
         prerelease: false
         body: ${{ steps.prepare_release.outputs.clean_changelog }}
-      id: package
     - name: Delete PR head branch
       uses: dawidd6/action-delete-branch@master
       with:
