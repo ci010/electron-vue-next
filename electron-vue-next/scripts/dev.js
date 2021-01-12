@@ -9,8 +9,6 @@ const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 const { EOL } = require('os')
 
-// const env = require('./env')
-
 const manualRestart = false
 
 /**
@@ -89,12 +87,6 @@ async function startRenderer() {
 
   config.mode = process.env.NODE_ENV
 
-  // config.env = config.env || {}
-  // for (const [key, value] of Object.entries(env)) {
-  //   if (key.startsWith('VITE_')) {
-  //     config.env[key] = value
-  //   }
-  // }
   const server = await createServer(config)
   return server.listen(8080)
 }

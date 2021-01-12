@@ -7,7 +7,6 @@ const { build: electronBuilder } = require('electron-builder')
 const { stat, remove, copy, writeFile } = require('fs-extra')
 const { rollup } = require('rollup')
 const loadConfigFile = require('rollup/dist/loadConfigFile')
-// const env = require('./env')
 
 /**
  * Load rollup config
@@ -79,15 +78,6 @@ async function buildMain(config) {
  */
 function buildRenderer() {
   const config = require('./vite.config')
-
-  // vite 2 remove this options
-  // config.env = config.env || {}
-
-  // for (const [key, value] of Object.entries(env)) {
-  //   if (key.startsWith('VITE_')) {
-  //     config.env[key] = value
-  //   }
-  // }
 
   console.log(chalk.bold.underline('Build renderer process'))
 
