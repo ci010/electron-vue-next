@@ -51,8 +51,8 @@ npm run build:production
 
 ### Config Your Project and Build
 
-Once you install your project, you should change the package base info in [package.json](/package.json),
-and also the build information in [build.base.config.js](/scripts/build.base.config.js).
+Once you install your project, you should change the package base info in [package.json](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/package.json),
+and also the build information in [build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js).
 
 ## Project Structure
 
@@ -97,11 +97,11 @@ your-project
 
 #### assets, static resources, build resources... what's the difference?
 
-The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](src/renderer/assets)
+The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/src/renderer/assets)
 
-The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [static](static).
+The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [static](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/static).
 
-The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [build/icons](build/icons).
+The build resources are used by `electron-builder` to build the installer. They can be your program icon of installer, or installer script. Default build icons are under [build/icons](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/build/icons).
 
 *Notice that your program icon can show up in multiple place! Don't mixup them!*
 - *In build icons, of course you want your program has correct icon.*
@@ -142,7 +142,7 @@ Compile both `main` and `renderer` process code to production, located at `dist/
 
 #### `npm run build:production`
 
-It will compile both processes, and then run `electron-builder` to build your app into executable installer or zip. The build config is defined in [scripts/build.base.config.js](scripts/build.base.config.js).
+It will compile both processes, and then run `electron-builder` to build your app into executable installer or zip. The build config is defined in [scripts/build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js).
 
 #### `npm run build:dir`
 
@@ -477,15 +477,15 @@ const mainWindow = new BrowserWindow({
 
 ## Build
 
-The project build is based on [electron-builder](https://github.com/electron-userland/electron-builder). The config file is majorly in [scripts/build.base.config.js](../scripts/build.base.config.js). And you can refer the electron-builder [document](https://www.electron.build/).
+The project build is based on [electron-builder](https://github.com/electron-userland/electron-builder). The config file is majorly in [scripts/build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js). And you can refer the electron-builder [document](https://www.electron.build/).
 
 ### Compile
 
-The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/rollup.config.js). It will output the production code to `dist/electron/index.prod.js`.
+The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js). It will output the production code to `dist/electron/index.prod.js`.
 
 Notice that by default, this project's rollup config won't bundle the nodejs dependencies used in main process. As the rollup is based on esm, it has a hard time to resolve some circular dependencies problems, which can happen frequently in some nodejs package (e.g. electron-updater, Webpack can handle these kind of problem though). Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.prod.js`.
 
-The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/vite.config.js). It will compile the production code into `dist/electron/renderer/*`.
+The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js). It will compile the production code into `dist/electron/renderer/*`.
 
 ### Exclude Files
 
@@ -543,7 +543,7 @@ It using the conventional-commit. If you want to auto-generate the changelog, yo
 
 If the **bump version PR** is approved and merged to master, it will auto build and release to github release.
 
-**If you want to disable this github action release process, just remove the [.github/workflows/build.yml](/.github/workflows/build.yml) file.**
+**If you want to disable this github action release process, just remove the [.github/workflows/build.yml](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/.github/workflows/build.yml) file.**
 
 ### AutoUpdate Support
 

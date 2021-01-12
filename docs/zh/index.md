@@ -53,8 +53,8 @@ npm run build:production
 
 ### 配置你的项目信息和构建脚本
 
-在你安装完项目依赖之后，你应该首先去 [package.json](/package.json) 中更改项目基本信息，如项目名，作者信息，git 仓库地址等。
-同时你需要更新构建信息 [build.base.config.js](/scripts/build.base.config.js)，
+在你安装完项目依赖之后，你应该首先去 [package.json](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/package.json) 中更改项目基本信息，如项目名，作者信息，git 仓库地址等。
+同时你需要更新构建信息 [build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js)，
 
 ## 项目结构
 
@@ -99,11 +99,11 @@ your-project
 
 #### assets, 静态资源 (static), 构建资源... 有啥区别？
 
-assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rollup 系统打包到最终的构建文件中，你可以直接在 vue/ts 文件中 import 他们，基本上不用自己关心。assets 默认位置在 [renderer/renderer/assets](src/renderer/assets)
+assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rollup 系统打包到最终的构建文件中，你可以直接在 vue/ts 文件中 import 他们，基本上不用自己关心。assets 默认位置在 [renderer/renderer/assets](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/src/renderer/assets)
 
-静态资源，指的是一些需要被 main 进程在运行中使用的文件，比如你的系统托盘小图标 (Tray) 就需要放在 static 文件夹中，在运行时通过文件系统 (fs) 获取。或如你需要在 Windows 下运行一段 powershell，这些 powershell 文件通常就需要放在 static 文件夹下，并且在构建配置文件中明确标出 asarUnpack。默认静态文件夹在 [static](static)。
+静态资源，指的是一些需要被 main 进程在运行中使用的文件，比如你的系统托盘小图标 (Tray) 就需要放在 static 文件夹中，在运行时通过文件系统 (fs) 获取。或如你需要在 Windows 下运行一段 powershell，这些 powershell 文件通常就需要放在 static 文件夹下，并且在构建配置文件中明确标出 asarUnpack。默认静态文件夹在 [static](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/static)。
 
-而构建资源是指那些被 `electron-builder` 使用的资源，他们会用来构建安装包等。例如程序的图标，安装程序的自定义脚本等。默认的程序图标放在 [build/icons](build/icons) 里。
+而构建资源是指那些被 `electron-builder` 使用的资源，他们会用来构建安装包等。例如程序的图标，安装程序的自定义脚本等。默认的程序图标放在 [build/icons](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/build/icons) 里。
 
 *请注意你的程序图标可能需要在各种地方使用！不要混淆他们！*
 - *对于安装包图标, 他们应该在 `build/icons`，这会影响例如安装包图标，或者在 File Explorer 中显示的图标*
@@ -146,7 +146,7 @@ assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rol
 
 #### `npm run build:production`
 
-编译所有代码，并且使用 `electron-builder` 来你的 app build 成可执行的 exe 文件或者 zip 等。这个的配置文件在 [scripts/build.base.config.js](scripts/build.base.config.js)。
+编译所有代码，并且使用 `electron-builder` 来你的 app build 成可执行的 exe 文件或者 zip 等。这个的配置文件在 [scripts/build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js)。
 
 #### `npm run build:dir`
 
@@ -164,7 +164,7 @@ assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rol
 
 ## 开发
 
-本项目默认遵从 [security](https://www.electronjs.org/docs/tutorial/security)。在默认情况下，Renderer (浏览器) 不能访问 NodeJS 的模块，这意味着你不能在浏览器中直接访问 fs 来读写文件。你需要通过使用 [Service](/src/main/services/Service.ts) 来访问 NodeJS 资源。在 vue 中使用 `useService('NameOfService')` 来获得 service 提供的方法。
+本项目默认遵从 [security](https://www.electronjs.org/docs/tutorial/security)。在默认情况下，Renderer (浏览器) 不能访问 NodeJS 的模块，这意味着你不能在浏览器中直接访问 fs 来读写文件。你需要通过使用 [Service](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/src/main/services/Service.ts) 来访问 NodeJS 资源。在 vue 中使用 `useService('NameOfService')` 来获得 service 提供的方法。
 
 ### 服务 (Service)
 
@@ -481,15 +481,15 @@ const mainWindow = new BrowserWindow({
 
 ## 构建
 
-此项目的构建是直接使用 [electron-builder](https://github.com/electron-userland/electron-builder) 来达成的。它的配置主要放在 [scripts/build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/build.base.config.js) 文件中。当然你可以参考 electron-builder 的[官方文档](https://www.electron.build/)来使用。
+此项目的构建是直接使用 [electron-builder](https://github.com/electron-userland/electron-builder) 来达成的。它的配置主要放在 [scripts/build.base.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/build.base.config.js) 文件中。当然你可以参考 electron-builder 的[官方文档](https://www.electron.build/)来使用。
 
 ### 编译流程
 
-首先，我们会将 typescript/vue 的源码通过 rollup 以 production 模式编译成 JavaScript。rollup 对主进程的编译配置在 [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/rollup.config.js) 中，它会把编译出来的结果输出到 `dist/electron/index.prod.js`。
+首先，我们会将 typescript/vue 的源码通过 rollup 以 production 模式编译成 JavaScript。rollup 对主进程的编译配置在 [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js) 中，它会把编译出来的结果输出到 `dist/electron/index.prod.js`。
 
 注意，因为 rollup 是基于 esm 的，对循环依赖的处理没法像 webpack 那样理想，所以在尝试打包不少 nodejs 的 package 时会遇到循环依赖的问题。而你自己对这些 package 没有掌控 （webpack 一般能处理这种循环依赖的问题，并不会直接失败掉），所以此项目默认带的 rollup 构建脚本是不会打包 main 中使用的 nodejs 依赖的，你只要在 `package.json` 中把他们标注成 `external`，这些依赖就会以 `node_modules` 的形式存在于我们的构建输出的 asar 中。所以当你发现 `index.prod.js` 中没有打包 nodejs 的依赖代码也别感到奇怪就是了。
 
-而渲染进程的编译配置放在 [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/vite.config.js) 里，它会将结果输出到 `dist/electron/renderer/*` 里。
+而渲染进程的编译配置放在 [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js) 里，它会将结果输出到 `dist/electron/renderer/*` 里。
 
 ### 在构建中剔除某些具体文件
 
@@ -547,7 +547,7 @@ const mainWindow = new BrowserWindow({
 
 实际应用中你只需要检查这个 PR，如果没啥问题点击通过，它就会再 build 一遍，并且将结果发布到 github release 上。
 
-**如果你不需要这种自动流程，你可以将以下文件移除 [.github/workflows/build.yml](/.github/workflows/build.yml)**
+**如果你不需要这种自动流程，你可以将以下文件移除 [.github/workflows/build.yml](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/.github/workflows/build.yml)**
 
 ### 自动更新的支持
 
