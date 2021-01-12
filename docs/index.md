@@ -22,11 +22,14 @@ This repository contains the starter template for using vue-next with the latest
 - Integrate VSCode well
   - Support debug .ts/.vue files in main/renderer process by vscode debugger
   - Detail see [Debug](#debugging) section
+- Multiple Windows Support
+  - Can add a new window for App easily. See [Add a New Window](#new-window) section
 
 ## Quick Start
 
-Clone or fork this project to start.
-Once you have your project, and in the project folder:
+You should use `npm init` to create the project from template: `npm init electron-vue-next`.
+
+Once you're done, you can run following commands:
 
 ```shell
 # Install dependencies
@@ -117,7 +120,9 @@ And the renderer process is about
 > - The Renderer process manages only the corresponding web page. A crash in one Renderer process does not affect other Renderer processes.
 > - The Renderer process communicates with the Main process via IPC to perform GUI operations in a web page. Calling native GUI-related APIs from the Renderer process directly is restricted due to security concerns and potential resource leakage.
 
-Commonly, the main process is about your core business logic, and renderer side act as a data consumer to render the UI.
+Commonly, the main process is about your core business logic, and renderer side act as a data consumer to render the UI. Though, this is not absolutly right. Someone thinks the main process should not do any job other than communicating with system API (by electron API), since once the main process is blocked, the whole app will be blocked (not responsed). So if you have some really CPU heavy job, you definitly should not put them in the main process (Most of IO job in nodejs are async, that's fine). Maybe you can use the nodejs [worker_thread](https://nodejs.org/api/worker_threads.html) module to put them into another thread, so it won't make the whole app not responsable.
+
+So this design is depend on your core business type. If it's a IO heavy job, it's fine to put them in main process. If it's a CPU heavy job, you need to consider not to put them much in main process.
 
 Following the [security](https://www.electronjs.org/docs/tutorial/security) guideline of electron, in this boilerplate, the renderer process [**does not** have access to nodejs module by default](https://www.electronjs.org/docs/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content). The electron provide the `preload` options in `webPreferences`. In this boilerplate, I suggest you to wrap your core logic into `Service`. 
 
@@ -155,7 +160,7 @@ Run eslint to fix and report eslint error.
 
 ## Development
 
-Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. The [Service](#service) is a simple solution to isolate renderer logic and the vulnerable logic with full nodejs module access. See [this](#option-using-node-modules-in-renderer-process) section if you want to directly use node modules in renderer process.
+Due to the project is following the [security](https://www.electronjs.org/docs/tutorial/security) guideline. It does not allow the renderer to access node by default. The [Service](#service) is a simple solution to isolate renderer logic and the core logic with full nodejs module access. See [this](#option-using-node-modules-in-renderer-process) section if you want to directly use node modules in renderer process.
 
 ### Service
 
@@ -209,7 +214,7 @@ export default class BarService extends Service {
   private fooService: FooService
 
   async doSomeCoreLogic() {
-    const result = await fooService.foo()
+    const result = await this.fooService.foo()
     // perform some file system or network operations here
   }
 }
@@ -340,7 +345,7 @@ export default defineComponent({
 
 The only exception is the `useDialog`. You can only use `async` functions in it as the API call goes through IPC and it must be `async`.
 
-### Dependencies Management
+### Dependencies
 
 If you adding a new dependency, make sure if it's using any **nodejs** module, add it as `external` in the `package.json`. Otherwise, the vite will complain about "I cannot handle it!".
 
@@ -363,11 +368,43 @@ The raw javascript dependencies are okay for vite.
 
 #### Native Dependencies
 
-If you want to use the native dependencies, which need to compile when install. Usually, you need [node-gyp](https://github.com/nodejs/node-gyp) to build, the `electron-builder` will rebuild it upon your electron for you. Normally you don't need to worry much. Notice that if you are in Windows, you might want to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) to install the compile toolchain.
+If you want to use the native dependencies, which need to compile when install, usually, you need [node-gyp](https://github.com/nodejs/node-gyp) to build, the `electron-builder` will rebuild it upon your electron for you. Normally you don't need to worry much. Notice that if you are in Windows, you might want to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) to install the compile toolchain.
 
 #### Dependencies Contains Compiled Binary
 
-If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#build-exclude-files) section for detail. The development process won't affect much by it.
+If you want to use the dependencies containing the compiled binary, not only you should adding it to vite `exclude`, you should also take care about the electron-builder config. See the [Build](#exclude-files) section for detail. The development process won't affect much by it.
+
+### New Window
+
+1. Add a new html file under the `src/renderer`
+2. Reference some typescript/javascript file in you new added html file
+3. Add a code block in your `src/main/index.ts` to control the creation of this window
+
+For example, you just added a `side.html` under the `src/renderer`. You need to add such controller code in `index.ts`:
+
+```ts
+
+// This function should be called once app is ready
+function createANewWindow() {
+  // this part is the same as before, modify it as your wish
+  const win = new BrowserWindow({
+    height: 600,
+    width: 300,
+    webPreferences: {
+      preload: join(__static, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // __windowUrls.side is pointing to the real url of `side.html`
+  win.loadURL(__windowUrls.side)
+}
+
+```
+
+The `scripts/vite.config.js` will automatically scan all html files under the `src/renderer`. So, you do not need to touch the any vite/rollup config files.
+But, if you want more customization, you can refer the [official vite document](https://vitejs.dev/guide/build.html#multi-page-app) about the multi-page app!
 
 ### Debugging
 
@@ -442,13 +479,15 @@ const mainWindow = new BrowserWindow({
 
 The project build is based on [electron-builder](https://github.com/electron-userland/electron-builder). The config file is majorly in [scripts/build.base.config.js](../scripts/build.base.config.js). And you can refer the electron-builder [document](https://www.electron.build/).
 
-### Compile Process
+### Compile
 
 The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/rollup.config.js). It will output the production code to `dist/electron/index.prod.js`.
 
+Notice that by default, this project's rollup config won't bundle the nodejs dependencies used in main process. As the rollup is based on esm, it has a hard time to resolve some circular dependencies problems, which can happen frequently in some nodejs package (e.g. electron-updater, Webpack can handle these kind of problem though). Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.prod.js`.
+
 The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/scripts/vite.config.js). It will compile the production code into `dist/electron/renderer/*`.
 
-### Build Exclude Files
+### Exclude Files
 
 Normally, once you correctly config the `dependencies` in [Development](#development) section, you should not worry to much about the build. But some dependencies contains compiled binary. You might want to exclude them out of the unrelated OS builds.
 
@@ -458,17 +497,12 @@ Since it using the `7zip-bin` which carry binary for multiple platform, we need 
 Modify the electron-builder build script `build.base.config.js`
 
 ```js
-  files: [
-    "dist/electron/**/*",
-    "!**/node_modules/**/*",
-    "node_modules/7zip-bin/**/*"
-  ],
   asarUnpack: [
     "node_modules/7zip-bin/**/*"
   ],
 ```
 
-Add them to `files` and `asarUnpack` to ensure the electron builder correctly pack & unpack them.
+Add them to `asarUnpack` to ensure the electron builder correctly pack & unpack them.
 
 To optimize for multi-platform, you should also exclude them from `files` of each platform config `build.config.js`
 

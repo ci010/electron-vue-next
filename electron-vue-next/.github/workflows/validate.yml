@@ -8,12 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js 15
-      uses: actions/setup-node@v2
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
       with:
-        node-version: 15
-    - name: Use npm 7
-      run: npm install -g npm@7
+        node-version: 12
     - name: Install
       run: |
         npm ci

@@ -1,0 +1,10 @@
+node_modules
+.DS_Store
+*.local
+thumbs.db
+package-lock.json
+vetur.config.js
+docs
+scripts
+.gitignore
+/.github

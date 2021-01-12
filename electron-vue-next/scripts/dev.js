@@ -9,8 +9,6 @@ const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 const { EOL } = require('os')
 
-const env = require('./env')
-
 const manualRestart = false
 
 /**
@@ -84,19 +82,13 @@ function reloadElectron() {
 /**
  * Start vite dev server for renderer process and listen 8080 port
  */
-function startRenderer() {
+async function startRenderer() {
   const config = require('./vite.config')
 
   config.mode = process.env.NODE_ENV
 
-  config.env = config.env || {}
-  for (const [key, value] of Object.entries(env)) {
-    if (key.startsWith('VITE_')) {
-      config.env[key] = value
-    }
-  }
-
-  return createServer(config).listen(8080)
+  const server = await createServer(config)
+  return server.listen(8080)
 }
 
 async function startMain() {

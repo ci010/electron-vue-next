@@ -7,34 +7,8 @@ import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { startService } from 'esbuild'
 import { extname, join, relative } from 'path'
-import { createReplacePlugin } from 'vite/dist/node/build/buildPluginReplace.js'
 
 import { external } from '../package.json'
-const env = require('./env.js')
-
-// user env variables loaded from .env files.
-// only those prefixed with VITE_ are exposed.
-const userClientEnv = {}
-const userEnvReplacements = {}
-Object.keys(env).forEach((key) => {
-  userEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(env[key])
-  userClientEnv[key] = env[key]
-})
-
-const resolvedMode = process.env.VITE_ENV || env.VITE_ENV || process.env.NODE_ENV
-
-const builtInClientEnv = {
-  BASE_URL: '',
-  MODE: process.env.NODE_ENV,
-  DEV: resolvedMode !== 'production',
-  PROD: resolvedMode === 'production'
-}
-const builtInEnvReplacements = {}
-Object.keys(builtInClientEnv).forEach((key) => {
-  builtInEnvReplacements[`import.meta.env.${key}`] = JSON.stringify(
-    builtInClientEnv[key]
-  )
-})
 
 const typescriptPluginInstance = pluginTypescript({
   tsconfig: join(__dirname, '../src/main/tsconfig.json')
@@ -82,18 +56,6 @@ const config = ({
         '/@shared': join(__dirname, '../src/shared')
       }
     }),
-    createReplacePlugin(
-      (id) => id.endsWith('.ts') || id.endsWith('.js'),
-      {
-        ...userEnvReplacements,
-        ...builtInEnvReplacements,
-        'import.meta.env.': '({}).',
-        'import.meta.env': JSON.stringify({
-          ...userClientEnv,
-          ...builtInClientEnv
-        })
-      },
-      true),
     typescriptPluginInstance,
     {
       name: 'main:esbuild',
@@ -145,6 +107,9 @@ const config = ({
           }
         }
         try {
+          /**
+           * @type {import('esbuild').Service}
+           */
           const service = this.cache.get('service')
           const result = await service.transform(code, {
             // @ts-ignore
@@ -158,8 +123,8 @@ const config = ({
             result.warnings.forEach((m) => printMessage(m, code))
           }
           return {
-            code: result.js,
-            map: result.jsSourceMap
+            code: result.code,
+            map: result.map
           }
         } catch (e) {
           console.error(

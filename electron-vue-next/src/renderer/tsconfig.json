@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "ESNext",
     "module": "ESNext",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "strict": true,
@@ -13,14 +9,14 @@
     "baseUrl": ".",
     "paths": {
       "/@shared/*": [
-        "src/shared/*"
+        "../shared/*"
       ],
       "/@/*": [
-        "src/renderer/*"
+        "./*"
       ],
       "/@main/*": [
-        "src/main/*"
-      ]
+        "../main/*"
+      ],
     },
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -28,9 +24,8 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/main/**/*",
-    "src/shared/**/*",
-    "src/renderer/renderer.d.ts",
+    "./**/*",
+    "../shared/**/*"
   ],
   "exclude": [
     "node_modules"
