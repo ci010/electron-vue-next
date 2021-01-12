@@ -6,6 +6,8 @@ This repository contains the starter template for using vue-next with the latest
 
 You can see the document [here](https://ci010.github.io/electron-vue-next/index.html).
 
+同样，我们也有[中文文档](https://ci010.github.io/electron-vue-next/zh)。
+
 ## Features
 
 - Electron 10
@@ -24,14 +26,11 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
 - Integrate VSCode well
   - Support debug .ts/.vue files in main/renderer process by vscode debugger
   - Detail see [Debug](#debug-in-vscode) section
+- Multiple Windows Support
+  - Can add a new window for App easily. See [Add a New Window](#new-window) section
 
 ## Planned Features
 
-- Multi-Windows Support
-  - This need to wait vite support [#257](https://github.com/vitejs/vite/issues/257)
-  - Currently, all workarounds I can come up with are all ugly and not ideal enough...
-- Make tsconfig.json less confusing
-  - Due to the Vetur [limitation](https://github.com/vuejs/vetur/issues/424) (only the root tsconfig.json is used for vetur), the current root tsconfig.json might be confusing
 - [vue-devtool](https://github.com/vuejs/vue-devtools) support
   - Currently the devtool is still WIP and not support vuex/router...
   - Wait until it has great support for vuex and router to add it
