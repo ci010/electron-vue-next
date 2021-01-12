@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig.json to read more about this file */
-    /* Basic Options */
-    "target": "ESNext", /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
-    "module": "ESNext", /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
-    "downlevelIteration": true, /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
+    "target": "ESNext",
+    "module": "ESNext",
+    "downlevelIteration": true,
     "resolveJsonModule": true,
-    /* Strict Type-Checking Options */
-    "strict": true, /* Enable all strict type-checking options. */
-    "moduleResolution": "node", /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
-    "baseUrl": "./src/renderer", /* Base directory to resolve non-absolute module names. */
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
     "paths": {
       "/@shared/*": [
         "../shared/*"
@@ -20,11 +17,11 @@
       "/@main/*": [
         "../main/*"
       ],
-    }, /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-    "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-    "experimentalDecorators": true, /* Enables experimental support for ES7 decorators. */
-    "skipLibCheck": true, /* Skip type checking of declaration files. */
-    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    },
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "./**/*",
