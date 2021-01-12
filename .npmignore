@@ -3,8 +3,8 @@ node_modules
 *.local
 thumbs.db
 package-lock.json
-vetur.config.js
+/vetur.config.js
 docs
-scripts
-.gitignore
+/scripts
+/.gitignore
 /.github
