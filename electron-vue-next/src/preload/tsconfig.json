@@ -4,7 +4,7 @@
     "module": "ESNext",
     "downlevelIteration": true,
     "resolveJsonModule": true,
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "strict": true,
     "moduleResolution": "node",
     "baseUrl": ".",
@@ -23,7 +23,7 @@
   },
   "include": [
     "../shared/**/*",
-    "."
+    "./**/*"
   ],
   "exclude": [
     "node_modules"

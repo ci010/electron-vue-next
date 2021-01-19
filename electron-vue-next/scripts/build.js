@@ -6,23 +6,7 @@ const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
 const { stat, remove, copy, writeFile } = require('fs-extra')
 const { rollup } = require('rollup')
-const loadConfigFile = require('rollup/dist/loadConfigFile')
-
-/**
- * Load rollup config
- * @returns {Promise<import('rollup').RollupOptions>}
- */
-async function loadRollupConfig() {
-  console.log(chalk.bold.underline('Build main process'))
-
-  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
-    input: join(__dirname, '../src/main/index.prod.ts')
-  })
-
-  warnings.flush()
-
-  return options[0]
-}
+const { loadPreloadInput, loadWorkerInput, loadRollupConfig } = require('./util')
 
 /**
  * Generate the distribution version of package json
@@ -42,21 +26,10 @@ async function generatePackageJson() {
 }
 
 /**
- * Use typescript to build main process
- * @param {import('rollup').RollupOptions} config
+ * Print the rollup output
+ * @param {import('rollup').RollupOutput} output
  */
-async function buildMain(config) {
-  await Promise.all([
-    remove(join(__dirname, '../dist/electron/index.dev.js')),
-    remove(join(__dirname, '../dist/electron/index.dev.js.map'))
-  ])
-  const start = Date.now()
-
-  const bundle = await rollup(config)
-  // @ts-expect-error
-  await bundle.generate(config.output[0])
-  // @ts-expect-error
-  const { output } = await bundle.write(config.output[0])
+async function printOutput({ output }) {
   for (const chunk of output) {
     if (chunk.type === 'chunk') {
       const filepath = join('dist', 'electron', chunk.fileName)
@@ -68,9 +41,55 @@ async function buildMain(config) {
       )
     }
   }
-  console.log(
-    `Build completed in ${((Date.now() - start) / 1000).toFixed(2)}s.\n`
-  )
+}
+
+/**
+ * Use typescript to build preload
+ * @param {import('rollup').RollupOptions} config
+ */
+async function buildPreload(config) {
+  /**
+   * @type {Record<string, string>}
+   */
+  const input = {}
+  await loadPreloadInput(input)
+  const bundle = await rollup({
+    ...config,
+    input
+  })
+
+  if (!config.output) {
+    throw new Error('Unexpected rollup config to build!')
+  }
+
+  await printOutput(await bundle.write(config.output[0]))
+}
+
+/**
+ * Use rollup to build main process
+ * @param {import('rollup').RollupOptions} config
+ */
+async function buildMain(config) {
+  await Promise.all([
+    remove(join(__dirname, '../dist/electron/index.dev.js')),
+    remove(join(__dirname, '../dist/electron/index.dev.js.map'))
+  ])
+
+  const input = {
+    'index.prod': join(__dirname, '../src/main/index.prod.ts')
+  }
+
+  await loadWorkerInput(input)
+
+  const bundle = await rollup({
+    ...config,
+    input
+  })
+  if (!config.output) {
+    throw new Error('Unexpected rollup config to build!')
+  }
+
+  await printOutput(await bundle.write(config.output[0]))
 }
 
 /**
@@ -114,6 +133,9 @@ async function buildElectron(config, dir) {
   )
 }
 
+/**
+ * Copy static files to the distrubution dir
+ */
 async function copyStatic() {
   await remove(join(__dirname, '../dist/electron/static'))
   await copy(
@@ -135,9 +157,14 @@ async function start() {
     }
   }
 
-  const rollupConfig = await loadRollupConfig()
+  const [mainConfig, preloadConfig] = await loadRollupConfig()
 
-  await buildMain(rollupConfig)
+  console.log(chalk.bold.underline('Build main process & preload'))
+  const startTime = Date.now()
+  await Promise.all([buildMain(mainConfig), buildPreload(preloadConfig)])
+  console.log(
+    `Build completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s.\n`
+  )
   await Promise.all([buildRenderer(), copyStatic()])
 
   console.log()

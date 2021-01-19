@@ -8,3 +8,6 @@ docs
 /scripts
 /.gitignore
 /.github
+/electron-vue-app/dist
+/electron-vue-app/build
+!/electron-vue-app/build/icons

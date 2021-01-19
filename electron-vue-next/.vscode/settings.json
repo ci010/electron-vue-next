@@ -16,5 +16,5 @@
     "vetur.format.defaultFormatter.js": "vscode-typescript",
     "vetur.validation.templateProps": true,
     "vetur.experimental.templateInterpolationService": true,
-    "vetur.format.defaultFormatter.ts": "vscode-typescript",
+    "vetur.format.defaultFormatter.ts": "vscode-typescript"
 }

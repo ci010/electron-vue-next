@@ -15,7 +15,13 @@ This repository contains the starter template for using vue-next with the latest
   - Using [vue-router-next](https://github.com/vuejs/vue-router-next)
 - Using [eslint](https://www.npmjs.com/package/eslint) with Javascript Standard by default
 - Built-in TypeScript Support
-  - Using [esbuild](https://github.com/evanw/esbuild) in [rollup](https://github.com/rollup/rollup) (align with vite) to build main process typescript code 
+  - Using [esbuild](https://github.com/evanw/esbuild) in [rollup](https://github.com/rollup/rollup) (align with vite) to build main process typescript code
+  - Built-in a typescript rollup plugin to typecheck
+- NodeJS `worker_threads` workflow out-of-box
+  - Don't need to worry the worker threads bundle/build when you use it.
+- Preload scripts build workflow out-of-box
+  - No need to worry about the bundle/build of electron preload script.
+  - Built-in support for preload reload in DEV mode. Changing preload scripts won't restart the whole electron app
 - Github Action with Github Release is out-of-box
   - Auto bump version in package.json and generate CHANGELOG.md if you follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0)
   - Detail how this work described in [Release Process](#release-process) section
@@ -268,6 +274,31 @@ If you don't like Service design, you just easily remove it by
 1. Remove the whole `src/main/services` directory
 2. Remove the import line `import { initialize } from './services'` and initialization line `initialize(logger)` in `src/main/index.ts`
 
+### Preload
+
+No matter you use the Service design or not, you will need to care about the preload script of the `BrowserWindow`.
+
+*If you don't know what is the preload script. You can read it in [electron document about BrowserWindow](https://www.electronjs.org/docs/api/browser-window#new-browserwindowoptions), and also the [security guideline](https://www.electronjs.org/docs/tutorial/security).*
+
+In this template, we have already setup the build script for preload. You can see all the preloads under `/src/preload`.
+
+Each preload `.js/.ts` file under it will be compiled as an individual preload entry in rollup.
+
+For example, if you add a new preload script named `/src/preload/my-preload.ts`,
+you can refer it while creating the `BrowserWindow`:
+
+```ts
+new BrowserWindow({
+  webPreferences: {
+    preload: __preloads['my-preload'],
+  }
+})
+```
+
+The rollup config of preload is located at the `rollup.config.js`.
+
+The preload script in `dist` will be built like `dist/electron/<name>.preload.js`.
+
 ### Hooks or Composable in Renderer Process
 
 One great feature of vue 3 is the [composition-api](https://composition-api.vuejs.org/). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in `/src/renderer/hooks` by default.
@@ -405,6 +436,26 @@ function createANewWindow() {
 
 The `scripts/vite.config.js` will automatically scan all html files under the `src/renderer`. So, you do not need to touch the any vite/rollup config files.
 But, if you want more customization, you can refer the [official vite document](https://vitejs.dev/guide/build.html#multi-page-app) about the multi-page app!
+
+### Worker Threads
+
+If you want to use [worker_threads](https://nodejs.org/api/worker_threads.html) in main process, you need separately load the `Worker` script. The template already setup the build/bundle process of the `Worker` script. Normally, you do not need to modify this build process.
+
+All the `.js/.ts` files under the `src/main/workers` will be treated as a rollup entry.
+
+If you have a new worker file named `src/main/workers/sha256.ts`,
+you can access it in main process like:
+
+```ts
+import { Worker } from 'worker_threads'
+
+// __workers.sha256 is the location of the worker script
+new Worker(__workers.sha256)
+```
+
+The worker thread files are built together with the normal main process code. They are under the same config in `rollup.config.js`.
+
+In `dist`, The worker script will be compiled as `dist/electron/<name>.worker.js`.
 
 ### Debugging
 

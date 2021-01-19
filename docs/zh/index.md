@@ -16,6 +16,11 @@
 - 内置 [eslint](https://www.npmjs.com/package/eslint)，默认使用 Javascript Standard
 - 内置 TypeScript
   - 使用 [esbuild](https://github.com/evanw/esbuild) 和 [rollup](https://github.com/rollup/rollup) 来构建 main 进程的 typescript（和 vite 使用的 esbuild 版本相同）
+- 开箱即用的 NodeJS 多线程支持
+  - 模板中已经把 worker script 的打包过程配置好了，使用时无需再调整构建配置
+- 开箱即用的 preload 的支持
+  - 模板中已经把 preload 的打包过程配置好了，使用时无需再调整构建配置
+  - 在开发模式下支持 preload 自动重载。preload script 的变化不会导致整个 Electron App 重启。
 - 开箱即用的 Github Action 发布流程
   - 自动升级版本号并且生成更变日志，只要你的 git commits 遵从 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0)
   - 具体细节你可以在 [发布](#发布) 这个章节查找
@@ -272,6 +277,31 @@ export default defineComponent({
 
 当然你可以在 `npm init` 之初就选择不要 service。
 
+### Preload
+
+无论你用不用 Service 的设计，你可能都需要考虑 preload，preload 让你能够在 renderer 进程中插入一些安全的可以访问 node 模块的代码。
+
+*如果你不知道啥是 preload，你可以阅读 [electron 关于 BrowserWindow 的官方文档](https://www.electronjs.org/docs/api/browser-window#new-browserwindowoptions)和[官方安全指南](https://www.electronjs.org/docs/tutorial/security).*
+
+在这个模板中，我们已经配置好了 preload 的构建流程，所有 preload 都被放在 `/src/preload` 文件夹下。
+
+其文件夹下的每个 preload `.js/.ts` 文件都会被当作一个独立的 rollup 文件入口。
+
+例如，如果你新加了一个 preload 文件，叫作 `/src/preload/my-preload.ts`，
+你可以通过以下方式在创建 `BrowserWindow` 时引用它：
+
+```ts
+new BrowserWindow({
+  webPreferences: {
+    preload: __preloads['my-preload'],
+  }
+})
+```
+
+preload 的 rollup 配置同样放置在 `rollup.config.js` 中。
+
+在 `dist` 文件夹下，每个 preload script 会被编译成 `dist/electron/<name>.preload.js` 的形式。
+
 ### 在渲染进程中使用 Hooks (Composable)
 
 Vue 3 的一大特性就是 [composition-api](https://composition-api.vuejs.org/)。你可以通过组合模式，将各种简单逻辑在 `setup` 函数中拼装出复杂的业务逻辑。这些组合函数都默认放在 `/src/renderer/hooks` 中。
@@ -410,6 +440,26 @@ function createANewWindow() {
 
 在 `scripts/vite.config.js` 中会自动扫描 `src/renderer` 下的所有 html 文件，所以一般来说你不需要改 vite 的配置文件。
 当然你可以参照 [vite 的官方文档](https://vitejs.dev/guide/build.html#multi-page-app)来更加自定义多页面的功能。
+
+### 多线程 (Thread Worker)
+
+如果你想在 main 进程中使用 nodejs 的 [worker_threads](https://nodejs.org/api/worker_threads.html)，Worker 脚本需要被独立加载。
+我们在这里已经集成了 Worker 脚本的打包构建流程。通常来讲，你不需要修改构建配置就可以添加新的 Worker。
+
+所有在 `src/main/workers` 文件夹下的 `.js/.ts` 文件都会被当作 worker 的 rollup 入口。
+
+如果你添加了一个叫 `src/main/workers/sha256.ts` 的 Worker 脚本，你可以这样来创建一个使用它的 Worker：
+
+```ts
+import { Worker } from 'worker_threads'
+
+// __workers.sha256 指向着实际编译结果的路径
+new Worker(__workers.sha256)
+```
+
+Worker 的脚本会和普通的 main 进程代码一起在 rollup 中编译，在 `rollup.config.js` 中他们共享相同的 rollup 配置。
+
+在 `dist` 文件夹下, Worker 的脚本会被编译成 `dist/electron/<name>.worker.js`。
 
 ### 在 VSCode 中 Debug
 

@@ -9,6 +9,16 @@ global.__windowUrls = new Proxy({}, {
     return pathToFileURL(require('path').join(__dirname, `./renderer/${page.toString()}.html`)).href
   }
 })
+global.__preloads = new Proxy({}, {
+  get(_, name) {
+    return require('path').join(__dirname, `./${name.toString()}.preload.js`).replace(/\\\\/g, '\\\\\\\\')
+  }
+})
+global.__workers = new Proxy({}, {
+  get(_, name) {
+    return require('path').join(__dirname, `./${name.toString()}.worker.js`).replace(/\\\\/g, '\\\\\\\\')
+  }
+})
 
 // eslint-disable-next-line import/first
 import './index'
