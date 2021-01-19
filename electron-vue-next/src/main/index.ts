@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron'
-import { join } from 'path'
+import { Worker } from 'worker_threads'
 import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
@@ -14,6 +14,10 @@ async function main() {
     const side = createSecondWindow()
     side.setPosition(x + 800 + 5, y)
   })
+  // thread_worker example
+  new Worker(__workers.index, { workerData: 'worker world' }).on('message', (message) => {
+    logger.log(`Message from worker: ${message}`)
+  }).postMessage('')
 }
 
 function createWindow() {
@@ -22,7 +26,7 @@ function createWindow() {
     height: 600,
     width: 800,
     webPreferences: {
-      preload: join(__static, 'preload.js'),
+      preload: __preloads.index,
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -37,7 +41,7 @@ function createSecondWindow() {
     height: 600,
     width: 300,
     webPreferences: {
-      preload: join(__static, 'preload.js'),
+      preload: __preloads.another,
       contextIsolation: true,
       nodeIntegration: false
     }

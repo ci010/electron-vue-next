@@ -1,20 +1,38 @@
 process.env.NODE_ENV = 'development'
 
+process.once('exit', terminate)
+  .once('SIGINT', terminate)
+
 const electron = require('electron')
 const { spawn } = require('child_process')
-const { join } = require('path')
+const { join, resolve } = require('path')
 const { createServer } = require('vite')
+const { createServer: createSocketServer } = require('net')
 const chalk = require('chalk')
-const loadConfigFile = require('rollup/dist/loadConfigFile')
 const { watch } = require('rollup')
 const { EOL } = require('os')
+const { loadWorkerInput, loadPreloadInput, loadRollupConfig } = require('./util')
 
-const manualRestart = false
+let manualRestart = false
 
 /**
  * @type {import('child_process').ChildProcessWithoutNullStreams  | null}
  */
 let electronProcess = null
+
+/**
+ * The current active dev socket connecting to the electron main process.
+ * Currently, this is only used for preloading the preload script
+ * @type {import('net').Socket | null}
+ */
+let devSocket = null
+
+/**
+ * The customized devserver communicated with the electron main process.
+ * Currently, this is only used for preloading the preload script
+ * @type {import('net').Server  | null}
+ */
+let devServer = null
 
 /**
  * Start electron process and inspect port 5858 with 9222 as debug port.
@@ -39,7 +57,7 @@ function startElectron() {
       } else if (line.startsWith('[ERROR]')) {
         return chalk.red('[ERROR]') + line.substring(7)
       }
-      return chalk.grey('[console] ') + line
+      return chalk.grey('[CONSOLE] ') + line
     }
     console.log(
       data.toString()
@@ -56,10 +74,11 @@ function startElectron() {
       // if (!devtoolProcess.killed) {
       //     devtoolProcess.kill(0);
       // }
-
       if (!signal) { // Manual close
         process.exit(0)
       }
+    } else {
+      manualRestart = false
     }
   })
 
@@ -71,12 +90,19 @@ function startElectron() {
  */
 function reloadElectron() {
   if (electronProcess) {
+    manualRestart = true
     electronProcess.kill('SIGTERM')
-    console.log(chalk.bold.underline.green('Electron App Restarted'))
+    console.log(`${chalk.cyan('[DEV]')} ${chalk.bold.underline.green('Electron app restarted')}`)
   } else {
-    console.log(chalk.bold.underline.green('Electron App Started'))
+    console.log(`${chalk.cyan('[DEV]')} ${chalk.bold.underline.green('Electron app started')}`)
   }
   startElectron()
+}
+
+function reloadPreload() {
+  if (devSocket) {
+    devSocket.write(Buffer.from([0]))
+  }
 }
 
 /**
@@ -91,47 +117,129 @@ async function startRenderer() {
   return server.listen(8080)
 }
 
-async function startMain() {
-  const { options, warnings } = await loadConfigFile(join(__dirname, 'rollup.config.js'), {
-    input: join(__dirname, '../src/main/index.dev.ts'),
-    sourcemap: true
-  })
-
-  warnings.flush()
-
+/**
+ * @param {import('rollup').RollupOptions} config
+ */
+async function loadPreloadConfig(config) {
   /**
-   * @type {import('rollup').RollupOptions}
+   * @type {Record<string, string>}
    */
-  const config = options[0]
+  const input = {}
 
-  watch({
+  await loadPreloadInput(input)
+
+  return {
     ...config,
+    input,
     watch: {
       buildDelay: 500
     }
+  }
+}
+
+/**
+ * @param {import('rollup').RollupOptions} config
+ */
+async function loadMainConfig(config) {
+  const input = {
+    'index.dev': join(__dirname, '../src/main/index.dev.ts')
+  }
+
+  await loadWorkerInput(input)
+
+  return {
+    ...config,
+    input,
+    watch: {
+      buildDelay: 500
+    }
+  }
+}
+
+/**
+ * Main method of this script
+ */
+async function main() {
+  const [mainConfig, preloadConfig] = await loadRollupConfig()
+
+  devServer = createSocketServer((sock) => {
+    console.log(`${chalk.cyan('[DEV]')} Dev socket connected`)
+    devSocket = sock
+    sock.on('error', (e) => {
+      // @ts-ignore
+      if (e.code !== 'ECONNRESET') {
+        console.error(e)
+      }
+    })
+  }).listen(25555, () => {
+    console.log(`${chalk.cyan('[DEV]')} Dev server listening on 25555`)
   })
-    .on('change', (id) => console.log(`${chalk.grey('[change]')} ${id}`))
+
+  const preloadPrefix = resolve(__dirname, '../src/preload')
+  let shouldReloadElectron = true
+  let shouldReloadPreload = false
+  const configs = await Promise.all([
+    loadMainConfig(mainConfig),
+    loadPreloadConfig(preloadConfig)
+  ])
+  await startRenderer()
+
+  // start watch the main & preload
+  watch(configs)
+    .on('change', (id) => {
+      console.log(`${chalk.cyan('[DEV]')} change ${id}`)
+      if (id.startsWith(preloadPrefix)) {
+        shouldReloadPreload = true
+      } else {
+        shouldReloadElectron = true
+      }
+    })
     .on('event', (event) => {
       switch (event.code) {
         case 'END':
-          reloadElectron()
+          if (shouldReloadElectron) {
+            reloadElectron()
+            shouldReloadElectron = false
+          } else {
+            console.log(`${chalk.cyan('[DEV]')} Skip start/reload electron.`)
+          }
+          if (shouldReloadPreload) {
+            reloadPreload()
+            shouldReloadPreload = false
+          } else {
+            console.log(`${chalk.cyan('[DEV]')} Skip start/reload preload.`)
+          }
           break
         case 'BUNDLE_END':
-          console.log(`${chalk.grey('[bundle]')} ${event.output} ${event.duration + 'ms'}`)
+          console.log(`${chalk.cyan('[DEV]')} Bundle ${event.output} ${event.duration + 'ms'}`)
           break
         case 'ERROR':
-          if (event.error.plugin !== 'typechecker') {
+          if (event.error.plugin !== 'typescript:checker') {
             console.error(event.error)
           }
+          shouldReloadElectron = false
           break
       }
     })
 }
 
-Promise.all([
-  startMain(),
-  startRenderer()
-]).catch(e => {
+main().catch(e => {
   console.error(e)
+  terminate()
   process.exit(1)
 })
+
+function terminate() {
+  if (electronProcess) {
+    electronProcess.kill()
+    electronProcess = null
+  }
+  if (devSocket) {
+    devSocket.destroy()
+    devSocket = null
+  }
+  if (devServer) {
+    devServer.close()
+    devServer = null
+  }
+}

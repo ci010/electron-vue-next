@@ -6,7 +6,7 @@ const themeConfig = {
     searchMaxSuggestions: 10,
   },
   sidebar: 'auto',
-  repo: 'ci010/vue-electron-next',
+  repo: 'ci010/electron-vue-next',
   docsDir: 'docs',
   repoLabel: 'Github',
   lastUpdated: true,
@@ -16,7 +16,7 @@ const themeConfig = {
     '/': {
       docsDir: 'docs',
       lang: 'en-US',
-      title: 'vue-electron-next',
+      title: 'electron-vue-next',
       description: 'vue hooks',
       label: 'English',
       selectText: 'Languages',
@@ -24,7 +24,7 @@ const themeConfig = {
     '/zh/': {
       docsDir: 'docs',
       lang: 'zh-CN',
-      title: 'vue-electron-next',
+      title: 'electron-vue-next',
       description: 'vue hooks',
       label: '中文',
       selectText: '语言',

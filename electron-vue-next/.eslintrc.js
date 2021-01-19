@@ -14,6 +14,8 @@ module.exports = {
   globals: {
     __static: true,
     __windowUrls: true,
+    __preloads: true,
+    __workers: true,
     NodeJS: true
   },
   parserOptions: {
