@@ -82,6 +82,9 @@ your-project
 │  │  ├─ index.ts          real electron start-up entry file
 │  │  ├─ logger.ts         a simple logger implementation
 │  │  └─ staticStore.ts
+│  ├─ preload
+│  │  ├─ index.ts          the preload entry
+│  │  └─ another.ts        another preload entry
 │  ├─ renderer
 │  │  ├─ components/       assets directoy
 │  │  ├─ components/       all components

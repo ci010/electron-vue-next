@@ -83,6 +83,9 @@ your-project
 │  │  ├─ index.ts          共享的入口文件，基本逻辑都从这开始
 │  │  ├─ logger.ts         一个简单的 Logger
 │  │  └─ staticStore.ts
+│  ├─ preload
+│  │  ├─ index.ts          preload 入口
+│  │  └─ another.ts        另一个 preload 入口
 │  ├─ renderer
 │  │  ├─ assets/           assets 文件夹
 │  │  ├─ components/       所有 vue components
