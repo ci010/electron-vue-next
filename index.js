@@ -126,11 +126,11 @@ async function setupProject() {
     const indexPath = join(distDir, 'src/main/index.ts')
     const lines = (await readFile(indexPath)).toString().split('\n')
     const filteredLine = new Set([
-      `import { Logger } from './logger'`,
-      `import { initialize } from './services'`,
+      'import { Logger } from \'./logger\'',
+      'import { initialize } from \'./services\'',
       'const logger = new Logger()',
       'logger.initialize(app.getPath(\'userData\'))',
-      'initialize(logger)',
+      'initialize(logger)'
     ])
     const result = lines.filter((line) => !filteredLine.has(line.trim())).join('\n')
     await writeFile(indexPath, result)
@@ -146,11 +146,12 @@ async function setupProject() {
     const indexPath = join(distDir, 'src/main/index.ts')
     const lines = (await readFile(indexPath)).toString().split('\n')
     const filteredLine = new Set([
-      `import { Worker } from 'worker_threads'`,
+      'import { Worker } from \'worker_threads\'',
       '// thread_worker example',
-      `new Worker(__workers.index, { workerData: 'worker world' }).on('message', (message) => {`,
-      `logger.log(\`Message from worker: \${message}\`)`,
-      `}).postMessage('')`,
+      'new Worker(__workers.index, { workerData: \'worker world\' }).on(\'message\', (message) => {',
+      // eslint-disable-next-line no-template-curly-in-string
+      'logger.log(`Message from worker: ${message}`)',
+      '}).postMessage(\'\')'
     ])
     const result = lines
       .filter(l => !filteredLine.has(l.trim()))
