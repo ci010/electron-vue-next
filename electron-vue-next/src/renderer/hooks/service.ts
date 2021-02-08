@@ -6,8 +6,8 @@ const { invoke } = useIpc()
 function createProxy(service: string) {
   return new Proxy({} as any, {
     get(_, functionName) {
-      return (payload: any) => {
-        return invoke('service:call', service, functionName as string, payload)
+      return (...payloads: any[]) => {
+        return invoke('service:call', service, functionName as string, ...payloads)
       }
     }
   })

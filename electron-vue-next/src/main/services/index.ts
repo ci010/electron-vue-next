@@ -63,7 +63,7 @@ export class ServiceMethodNotFoundError extends Error {
   }
 }
 
-ipcMain.handle('service:call', (event, name: string, method: string, ...args: any[]) => {
+ipcMain.handle('service:call', (event, name: string, method: string, ...payloads: any[]) => {
   if (!_services) {
     throw new Error('Cannot call any service until the services are ready!')
   }
@@ -74,5 +74,5 @@ ipcMain.handle('service:call', (event, name: string, method: string, ...args: an
   if (!service[method]) {
     throw new ServiceMethodNotFoundError(name, method)
   }
-  return service[method](args)
+  return service[method](...payloads)
 })
