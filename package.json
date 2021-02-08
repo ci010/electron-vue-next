@@ -25,7 +25,6 @@
     "electron-vue-next"
   ],
   "dependencies": {
-    "@vitejs/plugin-vue": "^1.0.5",
     "commander": "^6.2.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3"
