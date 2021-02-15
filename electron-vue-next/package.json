@@ -20,22 +20,22 @@
   "license": "MIT",
   "dependencies": {
     "electron-updater": "^4.3.5",
-    "vue": "^3.0.4",
+    "vue": "^3.0.5",
     "vue-router": "^4.0.3",
-    "vuex": "^4.0.0-rc.2"
+    "vuex": "^4.0.0"
   },
   "external": [
     "electron-updater",
     "fs-extra"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.0.5",
+    "@vitejs/plugin-vue": "^1.1.4",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.0.1",
     "@rollup/plugin-typescript": "^8.0.0",
-    "@vue/compiler-sfc": "^3.0.4",
+    "@vue/compiler-sfc": "^3.0.5",
     "builtin-modules": "^3.1.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
@@ -44,10 +44,10 @@
     "electron-builder": "^22.9.1",
     "esbuild": "^0.8.34",
     "fs-extra": "^9.0.1",
-    "rollup": "^2.35.1",
+    "rollup": "^2.38.5",
     "tslib": "^1.14.1",
     "typescript": "^4.1.2",
-    "vite": "^2.0.0-beta.65"
+    "vite": "^2.0.0-beta.67"
   },
   "optionalDependencies": {
     "@types/node": "^14.14.7",

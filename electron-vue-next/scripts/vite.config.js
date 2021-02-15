@@ -12,17 +12,19 @@ const entries = readdirSync(join(__dirname, '../src/renderer')).filter(f => f.en
  */
 const config = {
   root: join(__dirname, '../src/renderer'),
+  base: '', // has to set to empty string so the html assets path will be relative
   build: {
-    base: '', // has to set to empty string so the html assets path will be relative
     rollupOptions: {
       input: entries
     },
     outDir: resolve(__dirname, '../dist/electron/renderer'),
     assetsInlineLimit: 0
   },
-  alias: {
-    '/@shared': join(__dirname, '../src/shared'),
-    '/@': join(__dirname, '../src/renderer')
+  resolve: {
+    alias: {
+      '/@shared': join(__dirname, '../src/shared'),
+      '/@': join(__dirname, '../src/renderer')
+    }
   },
   optimizeDeps: {
     exclude: external
