@@ -39,15 +39,14 @@
     "builtin-modules": "^3.1.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
-    "dotenv": "^8.2.0",
-    "electron": "^10.1.2",
+    "electron": "^11.9.1",
     "electron-builder": "^22.9.1",
     "esbuild": "^0.8.34",
     "fs-extra": "^9.0.1",
     "rollup": "^2.38.5",
     "tslib": "^1.14.1",
     "typescript": "^4.1.2",
-    "vite": "^2.0.0-beta.67"
+    "vite": "^2.0.1"
   },
   "optionalDependencies": {
     "@types/node": "^14.14.7",
