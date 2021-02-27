@@ -5,8 +5,10 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import builtins from 'builtin-modules'
 import chalk from 'chalk'
 import { join } from 'path'
+import pluginEsbuild from 'rollup-plugin-esbuild'
 import { external } from '../package.json'
-import pluginEsbuild from './rollup.esbuild.plugin'
+import pluginResolve from './rollup.resolve.plugin'
+import pluginWorker from './rollup.worker.plugin'
 import pluginTypescript from './rollup.typescript.plugin'
 
 /**
@@ -30,13 +32,25 @@ const config = [{
     pluginAlias({
       entries: {
         '/@main': join(__dirname, '../src/main'),
-        '/@shared': join(__dirname, '../src/shared')
+        '/@shared': join(__dirname, '../src/shared'),
+        '/@static': join(__dirname, '../static'),
+        '/@renderer': join(__dirname, '../src/renderer'),
+        '/@preload': join(__dirname, '../src/preload')
       }
     }),
+    pluginResolve(),
     pluginTypescript({
       tsconfig: join(__dirname, '../src/main/tsconfig.json')
     }),
-    pluginEsbuild(),
+    pluginEsbuild({
+      target: 'esnext',
+      sourceMap: true,
+      tsconfig: join(__dirname, '../src/main/tsconfig.json'),
+      loaders: {
+        '.json': 'json'
+      }
+    }),
+    pluginWorker(),
     nodeResolve({
       browser: false
     }),
