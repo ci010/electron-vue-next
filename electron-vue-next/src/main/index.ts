@@ -1,8 +1,13 @@
 import { app, BrowserWindow } from 'electron'
-import { Worker } from 'worker_threads'
 import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
+import createBaseWorker from './workers/index?worker'
+import indexPreload from '/@preload/index'
+import anotherPreload from '/@preload/another'
+import indexHtmlUrl from '/@renderer/index.html'
+import sideHtmlUrl from '/@renderer/side.html'
+import logoUrl from '/@static/logo.png'
 
 async function main() {
   const logger = new Logger()
@@ -15,7 +20,7 @@ async function main() {
     side.setPosition(x + 800 + 5, y)
   })
   // thread_worker example
-  new Worker(__workers.index, { workerData: 'worker world' }).on('message', (message) => {
+  createBaseWorker({ workerData: 'worker world' }).on('message', (message) => {
     logger.log(`Message from worker: ${message}`)
   }).postMessage('')
 }
@@ -26,13 +31,14 @@ function createWindow() {
     height: 600,
     width: 800,
     webPreferences: {
-      preload: __preloads.index,
+      preload: indexPreload,
       contextIsolation: true,
       nodeIntegration: false
-    }
+    },
+    icon: logoUrl
   })
 
-  mainWindow.loadURL(__windowUrls.index)
+  mainWindow.loadURL(indexHtmlUrl)
   return mainWindow
 }
 
@@ -41,13 +47,13 @@ function createSecondWindow() {
     height: 600,
     width: 300,
     webPreferences: {
-      preload: __preloads.another,
+      preload: anotherPreload,
       contextIsolation: true,
       nodeIntegration: false
     }
   })
 
-  sideWindow.loadURL(__windowUrls.side)
+  sideWindow.loadURL(sideHtmlUrl)
   return sideWindow
 }
 

@@ -42,7 +42,7 @@ function startElectron() {
   const electronPath = electron
   const spawnProcess = spawn(
     electronPath,
-    ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.dev.js')]
+    ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.js')]
   )
 
   /**
@@ -142,7 +142,7 @@ async function loadPreloadConfig(config) {
  */
 async function loadMainConfig(config) {
   const input = {
-    'index.dev': join(__dirname, '../src/main/index.dev.ts')
+    index: join(__dirname, '../src/main/index.dev.ts')
   }
 
   await loadWorkerInput(input)
@@ -171,8 +171,8 @@ async function main() {
         console.error(e)
       }
     })
-  }).listen(25555, () => {
-    console.log(`${chalk.cyan('[DEV]')} Dev server listening on 25555`)
+  }).listen(3031, () => {
+    console.log(`${chalk.cyan('[DEV]')} Dev server listening on 3031`)
   })
 
   const preloadPrefix = resolve(__dirname, '../src/preload')
@@ -214,9 +214,7 @@ async function main() {
           console.log(`${chalk.cyan('[DEV]')} Bundle ${event.output} ${event.duration + 'ms'}`)
           break
         case 'ERROR':
-          if (event.error.plugin !== 'typescript:checker') {
-            console.error(event.error)
-          }
+          console.error(event)
           shouldReloadElectron = false
           break
       }

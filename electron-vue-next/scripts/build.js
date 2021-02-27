@@ -76,7 +76,7 @@ async function buildMain(config) {
   ])
 
   const input = {
-    'index.prod': join(__dirname, '../src/main/index.prod.ts')
+    index: join(__dirname, '../src/main/index.prod.ts')
   }
 
   await loadWorkerInput(input)

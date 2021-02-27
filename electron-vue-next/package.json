@@ -39,7 +39,7 @@
     "builtin-modules": "^3.1.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
-    "electron": "^11.9.1",
+    "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
     "esbuild": "^0.8.34",
     "fs-extra": "^9.0.1",
