@@ -13,9 +13,9 @@ function isRendererHtml(path) {
       return path
     }
   }
-  const htmlFile = join(__dirname, '../src/renderer', cleanUrl(path))
-  if (existsSync(htmlFile)) {
-    return htmlFile
+  const file = join(__dirname, '../src/renderer', cleanUrl(path))
+  if (existsSync(file)) {
+    return file
   }
   return undefined
 }
@@ -26,9 +26,9 @@ function isStaticFile(path) {
       return path
     }
   }
-  const staticFile = join(__dirname, '../static', cleanUrl(path))
-  if (existsSync(staticFile)) {
-    return staticFile
+  const file = join(__dirname, '../static', cleanUrl(path))
+  if (existsSync(file)) {
+    return file
   }
   return undefined
 }

@@ -10,6 +10,7 @@ import { external } from '../package.json'
 import pluginResolve from './rollup.resolve.plugin'
 import pluginWorker from './rollup.worker.plugin'
 import pluginTypescript from './rollup.typescript.plugin'
+import pluginPreload from './rollup.preload.plugin'
 
 /**
  * @type {import('rollup').RollupOptions[]}
@@ -50,6 +51,39 @@ const config = [{
         '.json': 'json'
       }
     }),
+    pluginPreload([
+      pluginAlias({
+        entries: {
+          '/@main': join(__dirname, '../src/main'),
+          '/@shared': join(__dirname, '../src/shared'),
+          '/@static': join(__dirname, '../static'),
+          '/@renderer': join(__dirname, '../src/renderer')
+        }
+      }),
+      pluginTypescript({
+        tsconfig: join(__dirname, '../src/main/tsconfig.json')
+      }),
+      pluginEsbuild({
+        target: 'esnext',
+        sourceMap: true,
+        tsconfig: join(__dirname, '../src/main/tsconfig.json'),
+        loaders: {
+          '.json': 'json'
+        }
+      }),
+      nodeResolve({
+        browser: false
+      }),
+      pluginCommonJs({
+        extensions: ['.js', '.cjs']
+      }),
+      pluginJson({
+        preferConst: true,
+        indent: '  ',
+        compact: false,
+        namedExports: true
+      })
+    ]),
     pluginWorker(),
     nodeResolve({
       browser: false

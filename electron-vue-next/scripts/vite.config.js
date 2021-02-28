@@ -20,11 +20,9 @@ const config = {
     outDir: resolve(__dirname, '../dist/electron/renderer'),
     assetsInlineLimit: 0
   },
-  resolve: {
-    alias: {
-      '/@shared': join(__dirname, '../src/shared'),
-      '/@': join(__dirname, '../src/renderer')
-    }
+  alias: {
+    '/@shared': join(__dirname, '../src/shared'),
+    '/@': join(__dirname, '../src/renderer')
   },
   optimizeDeps: {
     exclude: external
