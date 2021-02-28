@@ -29,24 +29,25 @@
     "fs-extra"
   ],
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.1.4",
+    "@vitejs/plugin-vue": "^1.1.5",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.0.1",
-    "@rollup/plugin-typescript": "^8.0.0",
-    "@vue/compiler-sfc": "^3.0.5",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@vue/compiler-sfc": "^3.0.6",
     "builtin-modules": "^3.1.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
     "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
-    "esbuild": "^0.8.34",
+    "esbuild": "^0.8.52",
     "fs-extra": "^9.0.1",
     "rollup": "^2.38.5",
     "tslib": "^1.14.1",
     "typescript": "^4.1.2",
-    "vite": "^2.0.1"
+    "magic-string": "^0.25.7",
+    "vite": "^2.0.4"
   },
   "optionalDependencies": {
     "@types/node": "^14.14.7",

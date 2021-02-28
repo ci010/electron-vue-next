@@ -1,4 +1,4 @@
-import { createSemanticDiagnosticsBuilderProgram, createWatchCompilerHost, createWatchProgram, DiagnosticCategory, findConfigFile, formatDiagnosticsWithColorAndContext, sys } from 'typescript'
+import { createSemanticDiagnosticsBuilderProgram, createWatchCompilerHost, createWatchProgram, DiagnosticCategory, formatDiagnosticsWithColorAndContext, sys } from 'typescript'
 
 /**
  * @param {number | void} timeout
@@ -95,15 +95,11 @@ export class WatchProgramHelper {
 
 /**
  * Create a typecheck only typescript plugin
- * @param {{tsconfig?: string; tsconfigOverride?: import('typescript').CompilerOptions }} options
+ * @param {{tsconfig?: string[]; tsconfigOverride?: import('typescript').CompilerOptions }} options
  * @returns {import('rollup').Plugin}
  */
 const create = ({ tsconfig, tsconfigOverride } = {}) => {
-  const configPath = tsconfig || findConfigFile(
-    /* searchPath */ './',
-    sys.fileExists,
-    'tsconfig.json'
-  )
+  const configPath = tsconfig
   if (!configPath) {
     throw new Error("Could not find a valid 'tsconfig.json'.")
   }
@@ -119,9 +115,9 @@ const create = ({ tsconfig, tsconfigOverride } = {}) => {
   }
 
   /**
-   * @type {import('typescript').WatchOfConfigFile<any>}
+   * @type {import('typescript').WatchOfConfigFile<any>[]}
    */
-  let program
+  let programs
 
   const watcher = new WatchProgramHelper()
 
@@ -136,9 +132,9 @@ const create = ({ tsconfig, tsconfigOverride } = {}) => {
   const plugin = {
     name: 'typescript:checker',
     buildStart() {
-      if (!program) {
-        const host = createWatchCompilerHost(
-          configPath,
+      if (!programs) {
+        programs = configPath.map((c) => createWatchProgram(createWatchCompilerHost(
+          c,
           tsconfigOverride || { noEmit: true, noEmitOnError: false },
           sys,
           createProgram,
@@ -146,8 +142,7 @@ const create = ({ tsconfig, tsconfigOverride } = {}) => {
             diagnostics.push(diagnostic)
           },
           (diagnostic) => watcher.handleStatus(diagnostic)
-        )
-        program = createWatchProgram(host)
+        )))
       }
     },
     async load(id) {
@@ -170,8 +165,8 @@ const create = ({ tsconfig, tsconfigOverride } = {}) => {
       watcher.watch()
     },
     buildEnd() {
-      if (this.meta.watchMode !== true) {
-        program.close()
+      if (!this.meta.watchMode) {
+        programs.forEach(p => p.close())
       }
     }
   }

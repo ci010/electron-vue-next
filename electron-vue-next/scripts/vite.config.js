@@ -17,7 +17,7 @@ const config = {
     rollupOptions: {
       input: entries
     },
-    outDir: resolve(__dirname, '../dist/electron/renderer'),
+    outDir: resolve(__dirname, '../dist/renderer'),
     assetsInlineLimit: 0
   },
   alias: {
