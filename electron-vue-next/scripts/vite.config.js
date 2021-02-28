@@ -20,9 +20,11 @@ const config = {
     outDir: resolve(__dirname, '../dist/renderer'),
     assetsInlineLimit: 0
   },
-  alias: {
-    '/@shared': join(__dirname, '../src/shared'),
-    '/@': join(__dirname, '../src/renderer')
+  resolve: {
+    alias: {
+      '/@shared': join(__dirname, '../src/shared'),
+      '/@': join(__dirname, '../src/renderer')
+    }
   },
   optimizeDeps: {
     exclude: external
