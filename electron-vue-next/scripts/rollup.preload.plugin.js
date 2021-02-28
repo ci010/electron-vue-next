@@ -1,5 +1,21 @@
+import { existsSync } from 'fs'
+import { isAbsolute, join } from 'path'
 import { rollup } from 'rollup'
 import { cleanUrl, parseRequest } from './rollup.base.plugin'
+
+export function isPreloadFile(path) {
+  if (isAbsolute(path)) {
+    if (path.startsWith(join(__dirname, '../src/preload')) && existsSync(path)) {
+      return path
+    }
+  }
+  const file = join(__dirname, '../src/preload', cleanUrl(path))
+  if (existsSync(file)) {
+    return file
+  }
+  return undefined
+}
+
 /**
  * @returns {import('rollup').Plugin}
  */
@@ -7,46 +23,35 @@ export default function createPreloadPlugin(plugins) {
   return {
     name: 'preload',
 
-    load(id) {
-      const { worker } = parseRequest(id)
-      if (typeof worker === 'string') {
-        return ''
-      }
-    },
-
-    async transform(_, id) {
-      const query = parseRequest(id)
-      if (query == null || (query && query.worker == null)) {
-        return
-      }
-
-      const bundle = await rollup({
-        input: id,
-        plugins
-      })
-      try {
-        const { output } = await bundle.generate({
-          format: 'es',
-          sourcemap: true
+    async load(id) {
+      const preloadFile = isPreloadFile(id)
+      if (preloadFile) {
+        const bundle = await rollup({
+          input: id,
+          plugins
         })
-        for (const o of output) {
-          this.emitFile({
-            type: 'asset',
-            fileName: o.fileName,
-            source: o.type === 'asset' ? o.source : o.code
+        try {
+          const { output } = await bundle.generate({
+            format: 'cjs',
+            sourcemap: true
           })
-        }
-      } finally {
-        bundle.close()
-      }
+          const chunk = output.find(o => o.type === 'chunk')
+          if (!chunk) {
+            throw new Error(`Cannot generate preload chunk! ${id}`)
+          }
+          const hash = this.emitFile({
+            type: 'asset',
+            name: `preload.${chunk.name}`,
+            fileName: `preload.${chunk.fileName}`,
+            source: chunk.type === 'asset' ? chunk.source : chunk.code
+          })
 
-      // emit as separate chunk
-      const hash = this.emitFile({
-        type: 'chunk',
-        id: cleanUrl(id)
-      })
-      const path = `__PRELOAD__${hash}__`
-      return `export default ${path};`
+          const path = `__ASSETS__${hash}__`
+          return `export default ${path};`
+        } finally {
+          bundle.close()
+        }
+      }
     }
   }
 }
