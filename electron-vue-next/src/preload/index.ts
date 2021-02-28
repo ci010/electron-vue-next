@@ -1,6 +1,6 @@
 import { shell, clipboard, ipcRenderer, contextBridge, Dialog } from 'electron'
 
-console.log('hello world 1st preload!')
+console.log('hello world 1st preload!!!!')
 
 const api = {
   shell,

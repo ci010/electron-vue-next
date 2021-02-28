@@ -11,7 +11,7 @@ const { createServer: createSocketServer } = require('net')
 const chalk = require('chalk')
 const { watch } = require('rollup')
 const { EOL } = require('os')
-const { loadWorkerInput, loadPreloadInput, loadRollupConfig } = require('./util')
+const { loadRollupConfig } = require('./util')
 
 let manualRestart = false
 
@@ -42,7 +42,7 @@ function startElectron() {
   const electronPath = electron
   const spawnProcess = spawn(
     electronPath,
-    ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/electron/index.js')]
+    ['--inspect=5858', '--remote-debugging-port=9222', join(__dirname, '../dist/index.js')]
   )
 
   /**
@@ -120,32 +120,10 @@ async function startRenderer() {
 /**
  * @param {import('rollup').RollupOptions} config
  */
-async function loadPreloadConfig(config) {
-  /**
-   * @type {Record<string, string>}
-   */
-  const input = {}
-
-  await loadPreloadInput(input)
-
-  return {
-    ...config,
-    input,
-    watch: {
-      buildDelay: 500
-    }
-  }
-}
-
-/**
- * @param {import('rollup').RollupOptions} config
- */
 async function loadMainConfig(config) {
   const input = {
     index: join(__dirname, '../src/main/index.dev.ts')
   }
-
-  await loadWorkerInput(input)
 
   return {
     ...config,
@@ -160,7 +138,7 @@ async function loadMainConfig(config) {
  * Main method of this script
  */
 async function main() {
-  const [mainConfig, preloadConfig] = await loadRollupConfig()
+  const [mainConfig] = await loadRollupConfig()
 
   devServer = createSocketServer((sock) => {
     console.log(`${chalk.cyan('[DEV]')} Dev socket connected`)
@@ -178,14 +156,11 @@ async function main() {
   const preloadPrefix = resolve(__dirname, '../src/preload')
   let shouldReloadElectron = true
   let shouldReloadPreload = false
-  const configs = await Promise.all([
-    loadMainConfig(mainConfig),
-    loadPreloadConfig(preloadConfig)
-  ])
+  const config = await loadMainConfig(mainConfig)
   await startRenderer()
 
   // start watch the main & preload
-  watch(configs)
+  watch(config)
     .on('change', (id) => {
       console.log(`${chalk.cyan('[DEV]')} change ${id}`)
       if (id.startsWith(preloadPrefix)) {
@@ -197,7 +172,7 @@ async function main() {
     .on('event', (event) => {
       switch (event.code) {
         case 'END':
-          if (shouldReloadElectron) {
+          if (shouldReloadElectron || !electronProcess) {
             reloadElectron()
             shouldReloadElectron = false
           } else {

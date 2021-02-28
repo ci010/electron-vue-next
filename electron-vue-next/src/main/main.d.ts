@@ -1,10 +1,6 @@
 /* eslint-disable no-unused-vars */
 
 // declare electron static for static file serving
-/**
- * The preload script entries
- */
-declare const __preloads: Record<string, string>
 
 declare module '*?worker' {
   import { Worker, WorkerOptions } from 'worker_threads'
