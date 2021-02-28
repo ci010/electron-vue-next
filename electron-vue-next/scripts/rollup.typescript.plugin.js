@@ -86,7 +86,9 @@ export class WatchProgramHelper {
         this._finishDeferred = null
       }
 
-      await this._finishDeferred.promise
+      if (this._finishDeferred) {
+        await this._finishDeferred.promise
+      }
     }
   }
 }
