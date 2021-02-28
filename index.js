@@ -32,7 +32,7 @@ program
   .option('-n, --name <name>', 'name of the project')
   .option('-en, --enable-node-integration', 'enable node integration')
   .option('-ns, --no-service', 'do not generate Service infra')
-  .option('-ns, --no-thread-worker', 'do not generate thread worker support')
+  .option('-ns, --no-thread-worker', 'do not generate thread worker example')
   .option('-nc, --no-vscode', 'do not generate VSCode debug config')
   .on('option:enable-node-integration', () => { provided.nodeIntegration = true })
   .on('option:name', () => { provided.name = true })
@@ -73,8 +73,8 @@ async function interactive(name) {
     },
     {
       type: 'confirm',
-      default: true,
-      message: 'Include thread_worker support',
+      default: false,
+      message: 'Include thread_worker example',
       name: 'threadWorker'
     },
     { type: 'confirm', default: true, message: 'Generate vscode debug config:', name: 'vscode', when: !provided.vscode }
@@ -106,6 +106,12 @@ async function setupProject() {
         if (relativePath.startsWith(join('src', 'main', 'logger.ts'))) {
           return false
         }
+        if (relativePath.startsWith(join('src', 'renderer', 'components', 'About.vue'))) {
+          return false
+        }
+        if (relativePath.startsWith(join('src', 'renderer', 'hooks', 'service.ts'))) {
+          return false
+        }
       }
       if (!options.threadWorker) {
         if (relativePath.startsWith(join('src', 'main', 'workers'))) {
@@ -123,17 +129,38 @@ async function setupProject() {
   const packageJSON = await readJSON(join(distDir, 'package.json'))
   packageJSON.name = options.projectName
   if (!options.mainService) {
-    const indexPath = join(distDir, 'src/main/index.ts')
-    const lines = (await readFile(indexPath)).toString().split('\n')
-    const filteredLine = new Set([
-      'import { Logger } from \'./logger\'',
-      'import { initialize } from \'./services\'',
-      'const logger = new Logger()',
-      'logger.initialize(app.getPath(\'userData\'))',
-      'initialize(logger)'
-    ])
-    const result = lines.filter((line) => !filteredLine.has(line.trim())).join('\n')
-    await writeFile(indexPath, result)
+    {
+      const indexPath = join(distDir, 'src/main/index.ts')
+      const lines = (await readFile(indexPath)).toString().split('\n')
+      const filteredLine = new Set([
+        'import { Logger } from \'./logger\'',
+        'import { initialize } from \'./services\'',
+        'const logger = new Logger()',
+        'logger.initialize(app.getPath(\'userData\'))',
+        'initialize(logger)'
+      ])
+      const result = lines.filter((line) => !filteredLine.has(line.trim())).join('\n')
+      await writeFile(indexPath, result)
+    }
+    {
+      const routerPath = join(distDir, 'src/renderer/router.ts')
+      const routerLines = (await readFile(routerPath)).toString().split('\n')
+      routerLines.splice(11, 4)
+      routerLines.splice(2, 1)
+      await writeFile(routerPath, routerLines.join('\n'))
+    }
+    {
+      const path = join(distDir, 'src/renderer/hooks/index.ts')
+      const lines = (await readFile(path)).toString().split('\n')
+      lines.splice(11, 4)
+      await writeFile(path, lines.join('\n'))
+    }
+    {
+      const path = join(distDir, 'src/renderer/components/HomeNavigator.vue')
+      const lines = (await readFile(path)).toString().split('\n')
+      lines.splice(3, 1)
+      await writeFile(path, lines.join('\n'))
+    }
   }
   if (options.nodeIntegration) {
     const indexPath = join(distDir, 'src/main/index.ts')
@@ -146,9 +173,9 @@ async function setupProject() {
     const indexPath = join(distDir, 'src/main/index.ts')
     const lines = (await readFile(indexPath)).toString().split('\n')
     const filteredLine = new Set([
-      'import { Worker } from \'worker_threads\'',
+      'import createBaseWorker from \'./workers/index?worker\'',
       '// thread_worker example',
-      'new Worker(__workers.index, { workerData: \'worker world\' }).on(\'message\', (message) => {',
+      'createBaseWorker({ workerData: \'worker world\' }).on(\'message\', (message) => {',
       // eslint-disable-next-line no-template-curly-in-string
       'logger.log(`Message from worker: ${message}`)',
       '}).postMessage(\'\')'
