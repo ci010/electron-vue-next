@@ -4,6 +4,7 @@
 
 *我通过使用 [electron-vue](https://github.com/SimulatedGREG/electron-vue)，学习了如何使用 electron 和 vue。所以这个项目很大程度上受到了它的启发。*
 
+*希望你在使用这个模板的时候能够逐渐熟悉 rollup 和它的 API* :)
 ## 特性清单
 
 - Electron 10
@@ -72,14 +73,12 @@ your-project
 ├─ scripts                 所有的脚本文件夹，比如 build 的脚本就在这放着
 ├─ build                   build 使用的资源文件，同时也是 build 的输出文件夹
 │  └─ icons/               build 使用的图标文件
-├─ dist
-│  └─ electron/            编译后的js会在这
+├─ dist                    编译后的js会在这
 ├─ src
 │  ├─ main
 │  │  ├─ dialog.ts         对 electron dialog API 的简单封装，让 renderer 可以使用 dialog
 │  │  ├─ global.ts         typescript 的一些全局定义
 │  │  ├─ index.dev.ts      rollup 开发环境的入口文件
-│  │  ├─ index.prod.ts     rollup 生产环境的入口文件
 │  │  ├─ index.ts          共享的入口文件，基本逻辑都从这开始
 │  │  ├─ logger.ts         一个简单的 Logger
 │  │  └─ staticStore.ts
@@ -150,7 +149,7 @@ assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rol
 
 #### `npm run build`
 
-将 `main` 和 `renderer` 的代码编译到 production 环境, 输出的代码在 `dist/electron`
+将 `main` 和 `renderer` 的代码编译到 production 环境, 输出的代码在 `dist`
 
 #### `npm run build:production`
 
@@ -216,7 +215,7 @@ async function initializeServices(logger: Logger) {
 
 现在这个 `BarService` 已经可以被渲染进程调用了，只需要通过 `useService('BarService')` 就可以，详情请见 [Using Service in Renderer](#在渲染进程浏览器中使用某个-service).
 
-##### Services 之间的交互
+#### Services 之间的交互
 
 如果你在一个 `Service` 中想使用其他 `Service`，比如 `FooService`。你需要使用 `@Inject` 装饰器。
 
@@ -280,7 +279,21 @@ export default defineComponent({
 
 当然你可以在 `npm init` 之初就选择不要 service。
 
-### Preload
+### 静态资源
+
+你需要把所有的的静态资源放置在 `static` 文件夹下.
+
+如果你想在 main 进程中使用它们，你只需要通过 `/@static/<filename>` 这种方式来导入.
+
+例如，我们有一个 `logo.png` 文件放在里面，我们在代码中只需要像如下方式导入：
+
+```ts
+import logoPath from '/@static/logo.png' // 这个就是 logo 的绝对路径
+```
+
+管理以上行为的插件在 `scripts/rollup.static.plugin.js` 中。
+
+### Preload 脚本
 
 无论你用不用 Service 的设计，你可能都需要考虑 preload，preload 让你能够在 renderer 进程中插入一些安全的可以访问 node 模块的代码。
 
@@ -288,22 +301,26 @@ export default defineComponent({
 
 在这个模板中，我们已经配置好了 preload 的构建流程，所有 preload 都被放在 `/src/preload` 文件夹下。
 
-其文件夹下的每个 preload `.js/.ts` 文件都会被当作一个独立的 rollup 文件入口。
+你必须吧 preload 脚本放置在此文件夹下。如果你想在创建窗口的时候使用它，你需要通过 `import preloadPath from '/@preload/<your-preload-file>'` 这种方式导入它。
 
 例如，如果你新加了一个 preload 文件，叫作 `/src/preload/my-preload.ts`，
 你可以通过以下方式在创建 `BrowserWindow` 时引用它：
 
 ```ts
+import myPreloadPath from '/@preload/my-preload'
+
 new BrowserWindow({
   webPreferences: {
-    preload: __preloads['my-preload'],
+    preload: myPreloadPath,
   }
 })
 ```
 
 preload 的 rollup 配置同样放置在 `rollup.config.js` 中。
 
-在 `dist` 文件夹下，每个 preload script 会被编译成 `dist/electron/<name>.preload.js` 的形式。
+在 `dist` 文件夹下，每个 preload script 会被编译成 `dist/<name>.preload.js` 的形式。
+
+管理以上行为的插件放置于 `scripts/rollup.preload.plugin.js`。
 
 ### 在渲染进程中使用 Hooks (Composable)
 
@@ -421,6 +438,7 @@ export default defineComponent({
 例如你在 `src/renderer` 下面新增加了 `side.html` ，你需要在 `index.ts` 中加入类似以下代码：
 
 ```ts
+import preload from '/@preload/index'
 
 // 这个方法应该在启动的时候被调用
 function createANewWindow() {
@@ -429,7 +447,7 @@ function createANewWindow() {
     height: 600,
     width: 300,
     webPreferences: {
-      preload: join(__static, 'preload.js'),
+      preload,
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -449,20 +467,20 @@ function createANewWindow() {
 如果你想在 main 进程中使用 nodejs 的 [worker_threads](https://nodejs.org/api/worker_threads.html)，Worker 脚本需要被独立加载。
 我们在这里已经集成了 Worker 脚本的打包构建流程。通常来讲，你不需要修改构建配置就可以添加新的 Worker。
 
-所有在 `src/main/workers` 文件夹下的 `.js/.ts` 文件都会被当作 worker 的 rollup 入口。
+如果你想把一个文件导入为 `worker_thread` 你只需要在导入路径后面加上 `?worker`。
 
-如果你添加了一个叫 `src/main/workers/sha256.ts` 的 Worker 脚本，你可以这样来创建一个使用它的 Worker：
+如果你添加了一个叫 `src/main/workers/sha256.ts` 的 Worker 脚本，你可以这样来创建一个使用此脚本的 Worker：
 
 ```ts
+import createSha256Worker from './workers/sha256?worker'
 import { Worker } from 'worker_threads'
 
-// __workers.sha256 指向着实际编译结果的路径
-new Worker(__workers.sha256)
+const worker: Worker = createSha256Worker(/* options */)
 ```
 
 Worker 的脚本会和普通的 main 进程代码一起在 rollup 中编译，在 `rollup.config.js` 中他们共享相同的 rollup 配置。
 
-在 `dist` 文件夹下, Worker 的脚本会被编译成 `dist/electron/<name>.worker.js`。
+在 `dist` 文件夹下, Worker 的脚本会被编译成 `dist/<name>.worker.js`。
 
 ### 在 VSCode 中 Debug
 
@@ -538,11 +556,11 @@ const mainWindow = new BrowserWindow({
 
 ### 编译流程
 
-首先，我们会将 typescript/vue 的源码通过 rollup 以 production 模式编译成 JavaScript。rollup 对主进程的编译配置在 [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js) 中，它会把编译出来的结果输出到 `dist/electron/index.prod.js`。
+首先，我们会将 typescript/vue 的源码通过 rollup 以 production 模式编译成 JavaScript。rollup 对主进程的编译配置在 [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js) 中，它会把编译出来的结果输出到 `dist/index.js`。
 
-注意，因为 rollup 是基于 esm 的，对循环依赖的处理没法像 webpack 那样理想，所以在尝试打包不少 nodejs 的 package 时会遇到循环依赖的问题。而你自己对这些 package 没有掌控 （webpack 一般能处理这种循环依赖的问题，并不会直接失败掉），所以此项目默认带的 rollup 构建脚本是不会打包 main 中使用的 nodejs 依赖的，你只要在 `package.json` 中把他们标注成 `external`，这些依赖就会以 `node_modules` 的形式存在于我们的构建输出的 asar 中。所以当你发现 `index.prod.js` 中没有打包 nodejs 的依赖代码也别感到奇怪就是了。
+注意，因为 rollup 是基于 esm 的，对循环依赖的处理没法像 webpack 那样理想，所以在尝试打包不少 nodejs 的 package 时会遇到循环依赖的问题。而你自己对这些 package 没有掌控 （webpack 一般能处理这种循环依赖的问题，并不会直接失败掉），所以此项目默认带的 rollup 构建脚本是不会打包 main 中使用的 nodejs 依赖的，你只要在 `package.json` 中把他们标注成 `external`，这些依赖就会以 `node_modules` 的形式存在于我们的构建输出的 asar 中。所以当你发现 `index.js` 中没有打包 nodejs 的依赖代码也别感到奇怪就是了。
 
-而渲染进程的编译配置放在 [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js) 里，它会将结果输出到 `dist/electron/renderer/*` 里。
+而渲染进程的编译配置放在 [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js) 里，它会将结果输出到 `dist/renderer/*` 里。
 
 ### 在构建中剔除某些具体文件
 

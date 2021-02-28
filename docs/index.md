@@ -4,6 +4,8 @@ This repository contains the starter template for using vue-next with the latest
 
 *I started to learn electron & vue by the great project [electron-vue](https://github.com/SimulatedGREG/electron-vue). This project is also inspired from it.*
 
+*Holpfully, you generally learn how to use rollup & its plugin API from this project* :)
+
 ## Features
 
 - Electron 10
@@ -71,14 +73,12 @@ your-project
 ├─ scripts                 all dev scripts, build script directory
 ├─ build                   build resource and output directory
 │  └─ icons/               build icon directory
-├─ dist
-│  └─ electron/            compiled output directory
+├─ dist                    compiled output directory
 ├─ src
 │  ├─ main
 │  │  ├─ dialog.ts         the ipc handler to support dialog API from renderer process
 │  │  ├─ global.ts         typescript global definition
 │  │  ├─ index.dev.ts      the development rollup entry
-│  │  ├─ index.prod.ts     the production rollup entry
 │  │  ├─ index.ts          real electron start-up entry file
 │  │  ├─ logger.ts         a simple logger implementation
 │  │  └─ staticStore.ts
@@ -147,7 +147,7 @@ Start the rollup server hosting the main process script. It will auto reload the
 
 #### `npm run build`
 
-Compile both `main` and `renderer` process code to production, located at `dist/electron`
+Compile both `main` and `renderer` process code to production, located at `dist`
 
 #### `npm run build:production`
 
@@ -213,7 +213,7 @@ async function initializeServices(logger: Logger) {
 
 And this is ready to be used in renderer process by `useService('BarService')`. See [Using Service in Renderer](#using-service-in-renderer).
 
-##### Using Other Service in a Service
+#### Using Other Service in a Service
 
 If you need to use other `Service`, like `FooService`. You need to `@Inject` decorator to inject during runtime.
 
@@ -277,7 +277,22 @@ If you don't like Service design, you just easily remove it by
 1. Remove the whole `src/main/services` directory
 2. Remove the import line `import { initialize } from './services'` and initialization line `initialize(logger)` in `src/main/index.ts`
 
-### Preload
+
+### Static Resource
+
+Place all your static resources under the `static` folder.
+
+To use them in the main process, you just need to import them by `/@static/<filename>`.
+
+For example, we have a `logo.png` in static folder, and we want to get it path in runtime:
+
+```ts
+import logoPath from '/@static/logo.png' // this is the absolute path of the logo
+```
+
+The plugin manage this is the `scripts/rollup.static.plugin.js`.
+
+### Preload Script
 
 No matter you use the Service design or not, you will need to care about the preload script of the `BrowserWindow`.
 
@@ -285,22 +300,27 @@ No matter you use the Service design or not, you will need to care about the pre
 
 In this template, we have already setup the build script for preload. You can see all the preloads under `/src/preload`.
 
-Each preload `.js/.ts` file under it will be compiled as an individual preload entry in rollup.
+You must put the preload script under that folder. If you want to use it in main process.
+You can just import them by `import preloadPath from '/@preload/<your-preload-file>'`
 
 For example, if you add a new preload script named `/src/preload/my-preload.ts`,
 you can refer it while creating the `BrowserWindow`:
 
 ```ts
+import myPreloadPath from '/@preload/my-preload'
+
 new BrowserWindow({
   webPreferences: {
-    preload: __preloads['my-preload'],
+    preload: myPreloadPath,
   }
 })
 ```
 
 The rollup config of preload is located at the `rollup.config.js`.
 
-The preload script in `dist` will be built like `dist/electron/<name>.preload.js`.
+The preload script in `dist` will be built like `dist/<name>.preload.js`.
+
+The plugin manage this process is located at `scripts/rollup.preload.plugin.js`.
 
 ### Hooks or Composable in Renderer Process
 
@@ -417,6 +437,7 @@ If you want to use the dependencies containing the compiled binary, not only you
 For example, you just added a `side.html` under the `src/renderer`. You need to add such controller code in `index.ts`:
 
 ```ts
+import preload from '/@preload/index'
 
 // This function should be called once app is ready
 function createANewWindow() {
@@ -425,7 +446,7 @@ function createANewWindow() {
     height: 600,
     width: 300,
     webPreferences: {
-      preload: join(__static, 'preload.js'),
+      preload,
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -444,21 +465,21 @@ But, if you want more customization, you can refer the [official vite document](
 
 If you want to use [worker_threads](https://nodejs.org/api/worker_threads.html) in main process, you need separately load the `Worker` script. The template already setup the build/bundle process of the `Worker` script. Normally, you do not need to modify this build process.
 
-All the `.js/.ts` files under the `src/main/workers` will be treated as a rollup entry.
+You just need to import the worker script by ending a `?worker` query in import.
 
 If you have a new worker file named `src/main/workers/sha256.ts`,
 you can access it in main process like:
 
 ```ts
+import createSha256Worker from './workers/sha256?worker'
 import { Worker } from 'worker_threads'
 
-// __workers.sha256 is the location of the worker script
-new Worker(__workers.sha256)
+const worker: Worker = createSha256Worker(/* options */)
 ```
 
 The worker thread files are built together with the normal main process code. They are under the same config in `rollup.config.js`.
 
-In `dist`, The worker script will be compiled as `dist/electron/<name>.worker.js`.
+In `dist`, The worker script will be compiled as `dist/<name>.worker.js`.
 
 ### Debugging
 
@@ -535,11 +556,11 @@ The project build is based on [electron-builder](https://github.com/electron-use
 
 ### Compile
 
-The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js). It will output the production code to `dist/electron/index.prod.js`.
+The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js). It will output the production code to `dist/index.js`.
 
-Notice that by default, this project's rollup config won't bundle the nodejs dependencies used in main process. As the rollup is based on esm, it has a hard time to resolve some circular dependencies problems, which can happen frequently in some nodejs package (e.g. electron-updater, Webpack can handle these kind of problem though). Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.prod.js`.
+Notice that by default, this project's rollup config won't bundle the nodejs dependencies used in main process. As the rollup is based on esm, it has a hard time to resolve some circular dependencies problems, which can happen frequently in some nodejs package (e.g. electron-updater, Webpack can handle these kind of problem though). Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.js`.
 
-The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js). It will compile the production code into `dist/electron/renderer/*`.
+The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js). It will compile the production code into `dist/renderer/*`.
 
 ### Exclude Files
 
