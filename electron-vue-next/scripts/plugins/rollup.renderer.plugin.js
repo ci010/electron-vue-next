@@ -25,7 +25,7 @@ export default function createPreloadPlugin() {
           const url = JSON.stringify(`http://localhost:8080/${basename(clean)}`)
           return `export default ${url};`
         } else {
-          return `import { join } from 'path'; export default join(__dirname, 'renderer', ${JSON.stringify(basename(clean))});`
+          return `import { join } from 'path'; import { pathToFileURL } from 'url'; export default pathToFileURL(join(__dirname, 'renderer', ${JSON.stringify(basename(clean))})).toString();`
         }
       }
     }
