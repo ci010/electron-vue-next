@@ -7,7 +7,7 @@
 *希望你在使用这个模板的时候能够逐渐熟悉 rollup 和它的 API* :)
 ## 特性清单
 
-- Electron 10
+- Electron 11
   - 遵从 [ 安全性，原生能力和你的责任 ](https://www.electronjs.org/docs/tutorial/security) 这篇文章的指导，将 renderer 进程配置为纯“浏览器环境”（没有 node 环境）
   - 使用 [electron-builder](https://github.com/electron-userland/electron-builder) 来构建项目
 - 跟随 [vue-next](https://github.com/vuejs/vue-next) 的新生态
