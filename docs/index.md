@@ -8,7 +8,7 @@ This repository contains the starter template for using vue-next with the latest
 
 ## Features
 
-- Electron 10
+- Electron 11
   - Follow the [security](https://www.electronjs.org/docs/tutorial/security) guide of electron, make renderer process a browser only environment
   - Using [electron-builder](https://github.com/electron-userland/electron-builder) to build
 - Empower [vue-next](https://github.com/vuejs/vue-next) and its eco-system
