@@ -562,6 +562,23 @@ const mainWindow = new BrowserWindow({
 
 而渲染进程的编译配置放在 [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js) 里，它会将结果输出到 `dist/renderer/*` 里。
 
+#### 加速编译
+
+如果你觉得编译时间实在是太长了，一般来说这种情况都是因为 main 进程的代码要类型检查很久。
+
+你可以在 rollup.config.js 里设置 typescript 插件的参数来跳过类型检查：
+
+```ts
+pluginTypescript({
+  tsconfig: [join(__dirname, '../src/main/tsconfig.json'), join(__dirname, '../src/preload/tsconfig.json')],
+  wait: false // 设置这个会让 rollup build 跳过类型检查的结果
+}),
+```
+
+关掉 wait 你还是能看到类型检查的结果，但是这个结果的失败不会再影响你的 rollup build 了。
+
+如果你关了还是觉得慢，你可以把这个插件移除出 rollup.config.js
+
 ### 在构建中剔除某些具体文件
 
 通常来讲，如果你的 `dependencies` 和 `external` 配置正确，你不需要太担心构建的问题。但是有一些依赖包含了已经编译好的二进制。你可能希望正确打包这些预编译的二进制文件。

@@ -562,6 +562,23 @@ Notice that by default, this project's rollup config won't bundle the nodejs dep
 
 The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js). It will compile the production code into `dist/renderer/*`.
 
+#### Speed Up Compile
+
+If you feel the compile time is too long, this is majorly caused by typecheck for main process code.
+
+You can set the wait to typescript plugin to false in `rollup.config.js` to skip type check to dev.
+
+```ts
+pluginTypescript({
+  tsconfig: [join(__dirname, '../src/main/tsconfig.json'), join(__dirname, '../src/preload/tsconfig.json')],
+  wait: false // add this to not wait the type error result
+}),
+```
+
+You will still see the typecheck result, but the build won't be prevent if the typecheck failed.
+
+If you still think the compile is slow, you can just remove this plugin from `rollup.config.js`
+
 ### Exclude Files
 
 Normally, once you correctly config the `dependencies` in [Development](#development) section, you should not worry to much about the build. But some dependencies contains compiled binary. You might want to exclude them out of the unrelated OS builds.
