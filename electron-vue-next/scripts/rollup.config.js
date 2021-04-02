@@ -45,7 +45,8 @@ const config = [{
     pluginPreload(),
     pluginWorker(),
     pluginTypescript({
-      tsconfig: [join(__dirname, '../src/main/tsconfig.json'), join(__dirname, '../src/preload/tsconfig.json')]
+      tsconfig: [join(__dirname, '../src/main/tsconfig.json'), join(__dirname, '../src/preload/tsconfig.json')],
+      wait: false
     }),
     pluginResolve(),
     pluginEsbuild(),

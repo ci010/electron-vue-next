@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { startService } from 'esbuild'
+import { transform } from 'esbuild'
 import { extname } from 'path'
 
 /**
@@ -9,9 +9,6 @@ import { extname } from 'path'
 const createPlugin = () => {
   return ({
     name: 'main:esbuild',
-    async buildStart() {
-      this.cache.set('service', await startService())
-    },
     async resolveId(id, importer) {
       if (id.endsWith('.ts')) {
         return
@@ -49,11 +46,7 @@ const createPlugin = () => {
         }
       }
       try {
-        /**
-         * @type {import('esbuild').Service}
-         */
-        const service = this.cache.get('service')
-        const result = await service.transform(code, {
+        const result = await transform(code, {
           // @ts-ignore
           loader: extname(id).slice(1),
           sourcemap: true,
@@ -86,13 +79,11 @@ const createPlugin = () => {
     buildEnd(error) {
       // Stop the service early if there's error
       if (error && !this.meta.watchMode) {
-        this.cache.get('service').stop()
         console.log('esbuild service stop!')
       }
     },
     generateBundle() {
       if (!this.meta.watchMode) {
-        this.cache.get('service').stop()
         console.log('esbuild service stop!')
       }
     }
