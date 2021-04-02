@@ -95,15 +95,17 @@ export class WatchProgramHelper {
 
 /**
  * Create a typecheck only typescript plugin
- * @param {{tsconfig?: string[]; tsconfigOverride?: import('typescript').CompilerOptions }} options
+ * @param {{tsconfig?: string[]; tsconfigOverride?: import('typescript').CompilerOptions; wait?: boolean }} options
  * @returns {import('rollup').Plugin}
  */
-const create = ({ tsconfig, tsconfigOverride } = {}) => {
+const create = ({ tsconfig, tsconfigOverride, wait } = {}) => {
   const configPath = tsconfig
   if (!configPath) {
     throw new Error("Could not find a valid 'tsconfig.json'.")
   }
   const createProgram = createSemanticDiagnosticsBuilderProgram
+
+  wait = wait ?? true
 
   /**
    * @type {import('typescript').FormatDiagnosticsHost}
@@ -149,10 +151,19 @@ const create = ({ tsconfig, tsconfigOverride } = {}) => {
       if (!id.endsWith('.ts')) {
         return null
       }
-      await watcher.wait()
+      const promise = watcher.wait()
+      if (wait) {
+        await promise
+      } else {
+        promise.then(() => {
+          if (diagnostics.length > 0) {
+            console.error(formatDiagnosticsWithColorAndContext(diagnostics.splice(0), formatHost))
+          }
+        })
+      }
     },
     generateBundle() {
-      if (diagnostics.length > 0) {
+      if (wait && diagnostics.length > 0) {
         const count = diagnostics.length
         console.error(formatDiagnosticsWithColorAndContext(diagnostics.splice(0), formatHost))
         this.error(`Fail to compile the project. Found ${count} errors.`)
