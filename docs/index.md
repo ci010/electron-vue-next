@@ -32,6 +32,10 @@ This repository contains the starter template for using vue-next with the latest
   - Detail see [Debug](#debugging) section
 - Multiple Windows Support
   - Can add a new window for App easily. See [Add a New Window](#new-window) section
+- [vue-devtool](https://github.com/vuejs/vue-devtools) support
+  - Run npm run postinstall to install extensions
+  - Currently the devtool is still WIP and not support vuex/router...
+
 
 ## Quick Start
 
@@ -71,6 +75,7 @@ Your workspace should looks like
 ```
 your-project
 ├─ scripts                 all dev scripts, build script directory
+├─ extensions              temp folder of the vue-devtools extension
 ├─ build                   build resource and output directory
 │  └─ icons/               build icon directory
 ├─ dist                    compiled output directory
@@ -80,8 +85,7 @@ your-project
 │  │  ├─ global.ts         typescript global definition
 │  │  ├─ index.dev.ts      the development rollup entry
 │  │  ├─ index.ts          real electron start-up entry file
-│  │  ├─ logger.ts         a simple logger implementation
-│  │  └─ staticStore.ts
+│  │  └─ logger.ts         a simple logger implementation
 │  ├─ preload
 │  │  ├─ index.ts          the preload entry
 │  │  └─ another.ts        another preload entry

@@ -15,7 +15,8 @@
     "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
     "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
     "lint": "eslint --ext .ts,.vue,.js src scripts",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "postinstall": "node ./scripts/dev.install.js"
   },
   "author": {
     "email": "example@email.com",
@@ -43,10 +44,12 @@
     "builtin-modules": "^3.1.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
+    "extract-zip": "^1.7.0",
     "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
     "esbuild": "^0.9.3",
     "fs-extra": "^9.0.1",
+    "got": "^9.6.0",
     "rollup": "^2.38.5",
     "tslib": "^1.14.1",
     "typescript": "^4.1.2",

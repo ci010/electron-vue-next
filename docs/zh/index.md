@@ -30,6 +30,8 @@
   - 具体实现细节可以看 [Debug](#在-vscode-中-debug) 这个章节
 - 支持多窗口
   - 可以简单地让 App 增加一个新的窗口，详情参见 [如何添加一个新的窗口](#添加一个新的窗口)
+- Vue Devtools 开箱即用
+  - 通过 npm run postinstall 来确保 devtools 的安装
 
 ## 上手指南
 
@@ -71,6 +73,7 @@ npm run build:production
 ```
 your-project
 ├─ scripts                 所有的脚本文件夹，比如 build 的脚本就在这放着
+├─ extensions              vue-devtools 拓展临时存放的文件夹
 ├─ build                   build 使用的资源文件，同时也是 build 的输出文件夹
 │  └─ icons/               build 使用的图标文件
 ├─ dist                    编译后的js会在这
@@ -80,8 +83,7 @@ your-project
 │  │  ├─ global.ts         typescript 的一些全局定义
 │  │  ├─ index.dev.ts      rollup 开发环境的入口文件
 │  │  ├─ index.ts          共享的入口文件，基本逻辑都从这开始
-│  │  ├─ logger.ts         一个简单的 Logger
-│  │  └─ staticStore.ts
+│  │  └─ logger.ts         一个简单的 Logger
 │  ├─ preload
 │  │  ├─ index.ts          preload 入口
 │  │  └─ another.ts        另一个 preload 入口

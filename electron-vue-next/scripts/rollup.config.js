@@ -13,6 +13,7 @@ import pluginRenedrer from './plugins/rollup.renderer.plugin'
 import pluginStatic from './plugins/rollup.static.plugin'
 import pluginTypescript from './plugins/rollup.typescript.plugin'
 import pluginWorker from './plugins/rollup.worker.plugin'
+import pluginVueDevtools from './plugins/rollup.devtool.plugin'
 
 /**
  * @type {import('rollup').RollupOptions[]}
@@ -40,6 +41,7 @@ const config = [{
         '/@shared': join(__dirname, '../src/shared')
       }
     }),
+    pluginVueDevtools(),
     pluginStatic(),
     pluginRenedrer(),
     pluginPreload(),

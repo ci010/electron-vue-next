@@ -63,6 +63,7 @@ function startElectron() {
       data.toString()
         .split(EOL)
         .filter(s => s.trim() !== '')
+        .filter(s => s.indexOf('source: chrome-extension:') === -1)
         .map(colorize).join(EOL)
     )
   }

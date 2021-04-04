@@ -28,12 +28,10 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
   - Detail see [Debug](#debug-in-vscode) section
 - Multiple Windows Support
   - Can add a new window for App easily. See [Add a New Window](#new-window) section
-
-## Planned Features
-
 - [vue-devtool](https://github.com/vuejs/vue-devtools) support
+  - Run npm run postinstall to install extensions
   - Currently the devtool is still WIP and not support vuex/router...
-  - Wait until it has great support for vuex and router to add it
+
 
 ## Getting Started
 
