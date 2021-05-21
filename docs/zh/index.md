@@ -80,6 +80,8 @@ your-project
 ├─ dist                    编译后的js会在这
 ├─ src
 │  ├─ main
+│  │  ├─ services/         包含一些 App 与网络、磁盘文件交互的的业务逻辑
+│  │  ├─ workers/          使用 nodejs worker_threads 的多线程脚本
 │  │  ├─ dialog.ts         对 electron dialog API 的简单封装，让 renderer 可以使用 dialog
 │  │  ├─ global.ts         typescript 的一些全局定义
 │  │  ├─ index.dev.ts      rollup 开发环境的入口文件
@@ -91,6 +93,7 @@ your-project
 │  ├─ renderer
 │  │  ├─ assets/           assets 文件夹
 │  │  ├─ components/       所有 vue components
+│  │  ├─ hooks/            钩子函数或组合式 API
 │  │  ├─ router.ts         vue-router 初始代码
 │  │  ├─ store.ts          vuex 初始代码
 │  │  ├─ App.vue           Vue 文件的入口文件，被 index.ts 导入
@@ -327,7 +330,7 @@ preload 的 rollup 配置同样放置在 `rollup.config.js` 中。
 
 ### 在渲染进程中使用 Hooks (Composable)
 
-Vue 3 的一大特性就是 [composition-api](https://composition-api.vuejs.org/)。你可以通过组合模式，将各种简单逻辑在 `setup` 函数中拼装出复杂的业务逻辑。这些组合函数都默认放在 `/src/renderer/hooks` 中。
+Vue 3 的一大特性就是 [组合式 API](https://v3.cn.vuejs.org/api/composition-api.html)。你可以通过组合模式，将各种简单逻辑在 `setup` 函数中拼装出复杂的业务逻辑。这些组合函数都默认放在 `/src/renderer/hooks` 中。
 
 下面就是官方文档中的例子，你在 `/src/renderer/hooks/mouse.ts` 里有以下代码：
 

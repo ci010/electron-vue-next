@@ -81,6 +81,8 @@ your-project
 ├─ dist                    compiled output directory
 ├─ src
 │  ├─ main
+│  │  ├─ services/         services to access the network or files
+│  │  ├─ workers/          multi-thread scripts using nodejs worker_threads
 │  │  ├─ dialog.ts         the ipc handler to support dialog API from renderer process
 │  │  ├─ global.ts         typescript global definition
 │  │  ├─ index.dev.ts      the development rollup entry
@@ -90,8 +92,9 @@ your-project
 │  │  ├─ index.ts          the preload entry
 │  │  └─ another.ts        another preload entry
 │  ├─ renderer
-│  │  ├─ components/       assets directoy
-│  │  ├─ components/       all components
+│  │  ├─ assets/           assets directoy
+│  │  ├─ components/       all vue components
+│  │  ├─ hooks/            hooks or composition API
 │  │  ├─ router.ts         vue-router initializer
 │  │  ├─ store.ts          vuex store initializer
 │  │  ├─ App.vue           entry vue file imported by index.ts
@@ -328,7 +331,7 @@ The plugin manage this process is located at `scripts/rollup.preload.plugin.js`.
 
 ### Hooks or Composable in Renderer Process
 
-One great feature of vue 3 is the [composition-api](https://composition-api.vuejs.org/). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in `/src/renderer/hooks` by default.
+One great feature of vue 3 is the [composition-api](https://v3.vuejs.org/api/composition-api.html). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in `/src/renderer/hooks` by default.
 
 Take the example from vue composition api site, you have such code in `/src/renderer/hooks/mouse.ts`
 
