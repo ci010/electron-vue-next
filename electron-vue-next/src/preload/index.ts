@@ -28,7 +28,7 @@ const _ipcRenderer: IpcRenderer = {
     return _ipcRenderer
   },
   send: (channel, ...args) => ipcRenderer.send(channel, ...args),
-  sendSync: (channel, ...args) => ipcRenderer.send(channel, ...args),
+  sendSync: (channel, ...args) => ipcRenderer.sendSync(channel, ...args),
   sendTo: (id, channel, ...args) => ipcRenderer.sendTo(id, channel, ...args),
   sendToHost: (channel, ...args) => ipcRenderer.sendToHost(channel, args),
   // event emitter methods
