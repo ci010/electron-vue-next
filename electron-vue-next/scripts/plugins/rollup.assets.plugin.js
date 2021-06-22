@@ -4,6 +4,7 @@ import { join } from 'path'
 export const assetsUrlRE = /__ASSETS__([a-z\d]{8})__(?:\$_(.*?)__)?/g
 
 /**
+ * Replace internal assets symbol to real asset file path
  * @type {() => import('rollup').Plugin}
  */
 const createPlugin = () => ({

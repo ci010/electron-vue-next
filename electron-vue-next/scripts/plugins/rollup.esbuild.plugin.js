@@ -3,7 +3,7 @@ import { transform } from 'esbuild'
 import { extname } from 'path'
 
 /**
- * Wrap esbuild to rollup plugin to build typescript
+ * Wrap esbuild to build typescript
  * @type {() => import('rollup').Plugin}
  */
 const createPlugin = () => {

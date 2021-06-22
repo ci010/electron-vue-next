@@ -2,6 +2,7 @@ import { basename, extname } from 'path'
 import { cleanUrl, parseRequest } from './util'
 
 /**
+ * Resolve ?worker import to the function creating the worker object
  * @returns {import('rollup').Plugin}
  */
 export default function createWorkerPlugin() {

@@ -3,9 +3,10 @@ import { basename, join } from 'path'
 import { cleanUrl } from './util'
 
 /**
+ * Resolve import starts with `/@renderer` and ends with `.html` extension to the real file url.
  * @returns {import('rollup').Plugin}
  */
-export default function createPreloadPlugin() {
+export default function createRendererPlugin() {
   return {
     name: 'electron:renderer',
 

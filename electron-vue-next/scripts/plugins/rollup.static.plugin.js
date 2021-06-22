@@ -3,9 +3,10 @@ import { basename, join } from 'path'
 import { cleanUrl } from './util'
 
 /**
+ * Resolve import of static resource to real static resource path
  * @returns {import('rollup').Plugin}
  */
-export default function createPreloadPlugin() {
+export default function createStaticPlugin() {
   return {
     name: 'electron:static',
 

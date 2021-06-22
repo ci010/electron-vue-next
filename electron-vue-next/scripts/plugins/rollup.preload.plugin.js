@@ -2,6 +2,7 @@ import { basename, extname, join } from 'path'
 import { cleanUrl } from './util'
 
 /**
+ * Resolve the import of preload and emit it as single chunk of js file in rollup.
  * @returns {import('rollup').Plugin}
  */
 export default function createPreloadPlugin() {

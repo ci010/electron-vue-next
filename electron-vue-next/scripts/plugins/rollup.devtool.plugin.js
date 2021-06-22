@@ -1,6 +1,7 @@
 import { join } from 'path'
 
 /**
+ * Provide vue-devtool extension virtual import.
  * @returns {import('rollup').Plugin}
  */
 export default function createVueDevtoolsPlugin() {
