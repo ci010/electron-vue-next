@@ -1,20 +1,11 @@
-import { ModuleOption } from '../definition'
+import { Module } from "vuex"
+import { RootState } from ".."
 
-interface State {
+export interface State {
   count: number
 }
 
-interface Getters {
-}
-
-interface Mutations {
-  increment: void
-  decrement: void
-}
-
-export type FooModule = ModuleOption<State, Getters, Mutations>;
-
-const mod: FooModule = {
+const mod: Module<State, RootState> = {
   state: {
     count: 0
   },

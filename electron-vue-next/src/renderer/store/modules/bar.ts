@@ -1,21 +1,12 @@
-import { ModuleOption } from '../definition'
+import { Module } from 'vuex';
+import { RootState } from '..';
 
-interface State {
+export interface State {
   value: number;
   name: string;
 }
 
-interface Getters {
-  valueAndName: string
-}
-
-interface Mutations {
-  setValueAndName: { value: number; name: string }
-}
-
-export type BarModule = ModuleOption<State, Getters, Mutations>;
-
-const mod: BarModule = {
+const mod: Module<State, RootState> = {
   state: {
     value: 0,
     name: ''
