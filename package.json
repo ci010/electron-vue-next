@@ -10,9 +10,9 @@
     "dev": "npm run dev --prefix electron-vue-next",
     "build": "npm run build --prefix electron-vue-next",
     "build:docs": "vitepress build docs",
-    "build:dir": "cross-env ELECTRON_VERSION=10.1.2 npm run build:dir --prefix electron-vue-next",
-    "build:lite": "cross-env ELECTRON_VERSION=10.1.2 npm run build:lite --prefix electron-vue-next",
-    "build:production": "cross-env ELECTRON_VERSION=10.1.2 npm run build:production --prefix electron-vue-next",
+    "build:dir": "cross-env ELECTRON_VERSION=13.1.2 npm run build:dir --prefix electron-vue-next",
+    "build:lite": "cross-env ELECTRON_VERSION=13.1.2 npm run build:lite --prefix electron-vue-next",
+    "build:production": "cross-env ELECTRON_VERSION=13.1.2 npm run build:production --prefix electron-vue-next",
     "lint": "eslint --ext .ts,.vue,.js --config electron-vue-next/.eslintrc.js electron-vue-next/src electron-vue-next/scripts index.js scripts",
     "lint:fix": "npm run lint -- --fix"
   },
@@ -30,6 +30,6 @@
     "inquirer": "^7.3.3"
   },
   "devDependencies": {
-    "vitepress": "^0.12.2"
+    "vitepress": "^0.15.4"
   }
 }
