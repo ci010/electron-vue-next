@@ -15,8 +15,7 @@ export default function createVueDevtoolsPlugin() {
     async load(id) {
       if (id === 'vue-devtools') {
         const path = join(__dirname, '../extensions')
-        console.log(path)
-        return `export default "${path}"`
+        return `export default ${JSON.stringify(path)}`
       }
     }
   }

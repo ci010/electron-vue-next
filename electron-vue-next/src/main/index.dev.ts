@@ -10,7 +10,8 @@ app.on('browser-window-created', (event, window) => {
     window.webContents.openDevTools()
     window.webContents.session.loadExtension(extensions)
       .catch((e) => {
-        console.error('Cannot find the vue extension. Please run "npm run postinstall" to install extension, or remove it and try again!')
+        console.error('Fail to load vue extension. Please run "npm run postinstall" to install extension, or remove it and try again!')
+        console.error(e)
       })
   }
 })
