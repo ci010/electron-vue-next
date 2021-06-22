@@ -30,7 +30,7 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
   - Can add a new window for App easily. See [Add a New Window](#new-window) section
 - [vue-devtool](https://github.com/vuejs/vue-devtools) support
   - Run npm run postinstall to install extensions
-  - Currently the devtool is still WIP and not support vuex/router...
+  - Support vue-router-next and vuex 4 with new UI
 
 
 ## Getting Started

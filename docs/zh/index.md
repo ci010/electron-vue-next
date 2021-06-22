@@ -32,6 +32,7 @@
   - 可以简单地让 App 增加一个新的窗口，详情参见 [如何添加一个新的窗口](#添加一个新的窗口)
 - Vue Devtools 开箱即用
   - 通过 npm run postinstall 来确保 devtools 的安装
+  - 支持新的 vue-router-next 和 vuex 4
 
 ## 上手指南
 
