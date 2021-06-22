@@ -140,10 +140,12 @@ Commonly, the main process is about your core business logic, and renderer side 
 
 So this design is depend on your core business type. If it's a IO heavy job, it's fine to put them in main process. If it's a CPU heavy job, you need to consider not to put them much in main process.
 
-Following the [security](https://www.electronjs.org/docs/tutorial/security) guideline of electron, in this boilerplate, the renderer process [**does not** have access to nodejs module by default](https://www.electronjs.org/docs/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content). The electron provide the `preload` options in `webPreferences`. In this boilerplate, I suggest you to wrap your core logic into `Service`. 
+Following the [security](https://www.electronjs.org/docs/tutorial/security) guideline of electron, in this boilerplate, the renderer process [**does not** have access to nodejs module by default](https://www.electronjs.org/docs/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content). The electron provide the `preload` options in `webPreferences`. This boilerplate provides one simple way to solve this problem, wrapping your core logic into `Service`. 
 
 The `Service` is a type of class defined under the `src/main/services`. All the public method can be access by the renderer process.
 It's the bridge between the main and renderer. You can look at [Service](#service) for the detail.
+
+***Notice that this is really a simple/trivial solution which derives from my personal electron project (much complex case). It only shows a possibility. Real life software might need more modifications on it!***
 
 ### NPM Scripts
 

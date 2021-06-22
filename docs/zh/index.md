@@ -145,6 +145,8 @@ assets 文件只在 Renderer 进程中使用，他们会被 vite，也就是 rol
 `Service` 是一系列定义在 `src/main/services` 文件夹下的 class。`Service` 所有的 public 方法，经过我们的封装，都可以简单地在 renderer 进程访问。
 它也可以看作一个 main 和 renderer 进程之间的桥梁。你可以参考 [Service](#服务-service) 章节来一探究竟。
 
+***请注意 Serivce 是一个非常朴素简单的解决方案。它是从一个更为复杂的个人项目中抽取成的一个相对简单的实现方案。它只是展示一种可能性，实际上你可能需要根据你的实际情况调整 Service 的设计！***
+
 
 ### NPM 脚本
 
