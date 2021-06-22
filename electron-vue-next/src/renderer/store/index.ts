@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { createStore } from 'vuex'
 import { StoreOptions } from 'vuex'
 import { BaseGetters, BaseMutations, BaseState, RootState } from './definition'
 import bar, { BarModule } from './modules/bar'
@@ -33,4 +34,4 @@ const store = {
   }
 }
 
-export default store as any as StoreOptions<RootState>
+export default createStore(store as any as StoreOptions<RootState>)

@@ -1,5 +1,5 @@
 import { useStore as _useStore } from 'vuex'
-import { RootCommit, RootGetters, RootState } from '/@shared/store/definition'
+import { RootCommit, RootGetters, RootState } from '../store/definition'
 
 export function useStore() {
   const store = _useStore<RootState>()
