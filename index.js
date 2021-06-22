@@ -109,7 +109,7 @@ async function setupProject() {
         if (relativePath.startsWith(join('src', 'renderer', 'components', 'About.vue'))) {
           return false
         }
-        if (relativePath.startsWith(join('src', 'renderer', 'hooks', 'service.ts'))) {
+        if (relativePath.startsWith(join('src', 'renderer', 'composables', 'service.ts'))) {
           return false
         }
       }
@@ -150,7 +150,7 @@ async function setupProject() {
       await writeFile(routerPath, routerLines.join('\n'))
     }
     {
-      const path = join(distDir, 'src/renderer/hooks/index.ts')
+      const path = join(distDir, 'src/renderer/composables/index.ts')
       const lines = (await readFile(path)).toString().split('\n')
       lines.splice(11, 4)
       await writeFile(path, lines.join('\n'))

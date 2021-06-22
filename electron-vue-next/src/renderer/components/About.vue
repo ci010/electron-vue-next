@@ -9,7 +9,7 @@
 
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
-import { useService } from '../hooks'
+import { useService } from '../composables'
 
 export default defineComponent({
   setup() {

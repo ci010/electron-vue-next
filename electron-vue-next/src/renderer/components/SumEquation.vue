@@ -10,7 +10,7 @@
 
 <script lang=ts>
 import { defineComponent, ref } from 'vue'
-import { useSum } from '../hooks'
+import { useSum } from '../composables'
 
 export default defineComponent({
   setup() {

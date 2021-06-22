@@ -31,7 +31,7 @@
 
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
-import { useClipboard, useShell, useDialog, useCount } from '../hooks'
+import { useClipboard, useShell, useDialog, useCount } from '../composables'
 import SumEquation from './SumEquation.vue'
 
 export default defineComponent({
