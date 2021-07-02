@@ -1,5 +1,6 @@
 import { useIpc } from './electron'
 import type { Services } from '/@main/services'
+import { toRaw } from 'vue'
 
 const { invoke } = useIpc()
 
@@ -7,7 +8,8 @@ function createProxy(service: string) {
   return new Proxy({} as any, {
     get(_, functionName) {
       return (...payloads: any[]) => {
-        return invoke('service:call', service, functionName as string, ...payloads)
+        const rawPayloads = payloads.map(e => toRaw(e));
+        return invoke('service:call', service, functionName as string, ...rawPayloads);
       }
     }
   })
