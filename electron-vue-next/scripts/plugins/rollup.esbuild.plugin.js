@@ -10,6 +10,9 @@ const createPlugin = () => {
   return ({
     name: 'main:esbuild',
     async resolveId(id, importer) {
+      if (/\?commonjs/.test(id) || id === 'commonjsHelpers.js' || id.endsWith('js')) {
+        return
+      }
       if (id.endsWith('.ts')) {
         return
       }

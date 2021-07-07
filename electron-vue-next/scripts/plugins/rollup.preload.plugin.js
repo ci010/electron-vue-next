@@ -11,7 +11,7 @@ export default function createPreloadPlugin() {
 
     resolveId(source) {
       if (source.startsWith('/@preload')) {
-        return source.replace('/@preload', join(__dirname, '../src/preload')) + '?preload'
+        return source.replace('/@preload', join(__dirname, '..', 'src', 'preload')) + '?preload'
       }
     },
     async load(id) {

@@ -12,6 +12,7 @@ const chalk = require('chalk')
 const { watch } = require('rollup')
 const { EOL } = require('os')
 const { loadRollupConfig } = require('./util')
+const { remove } = require('fs-extra')
 
 let manualRestart = false
 
@@ -197,7 +198,7 @@ async function main() {
     })
 }
 
-main().catch(e => {
+remove(join(__dirname, '../dist')).then(() => main()).catch(e => {
   console.error(e)
   terminate()
   process.exit(1)
