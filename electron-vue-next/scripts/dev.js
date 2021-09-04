@@ -9,10 +9,10 @@ const { join, resolve } = require('path')
 const { createServer } = require('vite')
 const { createServer: createSocketServer } = require('net')
 const chalk = require('chalk')
-const { watch } = require('rollup')
+const { build } = require('esbuild')
 const { EOL } = require('os')
-const { loadRollupConfig } = require('./util')
 const { remove } = require('fs-extra')
+const esbuildOptions = require('./esbuild.config')
 
 let manualRestart = false
 
@@ -120,28 +120,9 @@ async function startRenderer() {
 }
 
 /**
- * @param {import('rollup').RollupOptions} config
- */
-async function loadMainConfig(config) {
-  const input = {
-    index: join(__dirname, '../src/main/index.dev.ts')
-  }
-
-  return {
-    ...config,
-    input,
-    watch: {
-      buildDelay: 500
-    }
-  }
-}
-
-/**
  * Main method of this script
  */
 async function main() {
-  const [mainConfig] = await loadRollupConfig()
-
   devServer = createSocketServer((sock) => {
     console.log(`${chalk.cyan('[DEV]')} Dev socket connected`)
     devSocket = sock
@@ -155,47 +136,60 @@ async function main() {
     console.log(`${chalk.cyan('[DEV]')} Dev server listening on 3031`)
   })
 
-  const preloadPrefix = resolve(__dirname, '../src/preload')
-  let shouldReloadElectron = true
-  let shouldReloadPreload = false
-  const config = await loadMainConfig(mainConfig)
   await startRenderer()
 
   // start watch the main & preload
-  watch(config)
-    .on('change', (id) => {
-      console.log(`${chalk.cyan('[DEV]')} change ${id}`)
-      if (id.startsWith(preloadPrefix)) {
-        shouldReloadPreload = true
-      } else {
-        shouldReloadElectron = true
+  await build({
+    ...esbuildOptions,
+    entryPoints: { index: join(__dirname, '../src/main/index.dev.ts') },
+    incremental: true,
+    watch: {
+      onRebuild(err, result) {
+        if (err) {
+          console.warn(err)
+        } else {
+          // console.log(`rebuild trigger`)
+          // console.log(result)
+          // if (result?.outputFiles)
+        }
+        reloadElectron()
       }
-    })
-    .on('event', (event) => {
-      switch (event.code) {
-        case 'END':
-          if (shouldReloadElectron || !electronProcess) {
-            reloadElectron()
-            shouldReloadElectron = false
-          } else {
-            console.log(`${chalk.cyan('[DEV]')} Skip start/reload electron.`)
-          }
-          if (shouldReloadPreload) {
-            reloadPreload()
-            shouldReloadPreload = false
-          } else {
-            console.log(`${chalk.cyan('[DEV]')} Skip start/reload preload.`)
-          }
-          break
-        case 'BUNDLE_END':
-          console.log(`${chalk.cyan('[DEV]')} Bundle ${event.output} ${event.duration + 'ms'}`)
-          break
-        case 'ERROR':
-          console.error(event)
-          shouldReloadElectron = false
-          break
-      }
-    })
+    }
+  })
+  // mainBuild.rebuild
+  //   .on('change', (id) => {
+  //     console.log(`${chalk.cyan('[DEV]')} change ${id}`)
+  //     if (id.startsWith(preloadPrefix)) {
+  //       shouldReloadPreload = true
+  //     } else {
+  //       shouldReloadElectron = true
+  //     }
+  //   })
+  //   .on('event', (event) => {
+  //     switch (event.code) {
+  //       case 'END':
+  //         if (shouldReloadElectron || !electronProcess) {
+  //           reloadElectron()
+  //           shouldReloadElectron = false
+  //         } else {
+  //           console.log(`${chalk.cyan('[DEV]')} Skip start/reload electron.`)
+  //         }
+  //         if (shouldReloadPreload) {
+  //           reloadPreload()
+  //           shouldReloadPreload = false
+  //         } else {
+  //           console.log(`${chalk.cyan('[DEV]')} Skip start/reload preload.`)
+  //         }
+  //         break
+  //       case 'BUNDLE_END':
+  //         console.log(`${chalk.cyan('[DEV]')} Bundle ${event.output} ${event.duration + 'ms'}`)
+  //         break
+  //       case 'ERROR':
+  //         console.error(event)
+  //         shouldReloadElectron = false
+  //         break
+  //     }
+  //   })
 }
 
 remove(join(__dirname, '../dist')).then(() => main()).catch(e => {

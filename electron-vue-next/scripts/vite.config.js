@@ -1,6 +1,6 @@
 const { join, resolve } = require('path')
-const { external } = require('../package.json')
-const { default: vue } = require('@vitejs/plugin-vue')
+// const { external } = require('../package.json')
+const vue = require('@vitejs/plugin-vue').default
 const { readdirSync } = require('fs')
 
 const entries = readdirSync(join(__dirname, '../src/renderer')).filter(f => f.endsWith('.html'))
@@ -27,9 +27,8 @@ const config = {
     }
   },
   optimizeDeps: {
-    exclude: external
+    // exclude: external
   },
-  // @ts-ignore
   plugins: [vue()]
 }
 

@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
@@ -8,6 +9,7 @@ import anotherPreload from '/@preload/another'
 import indexHtmlUrl from '/@renderer/index.html'
 import sideHtmlUrl from '/@renderer/side.html'
 import logoUrl from '/@static/logo.png'
+import { add } from '/@shared/sharedLib'
 
 async function main() {
   const logger = new Logger()
@@ -18,7 +20,9 @@ async function main() {
     const [x, y] = main.getPosition()
     const side = createSecondWindow()
     side.setPosition(x + 800 + 5, y)
+    autoUpdater.checkForUpdates()
   })
+  add(1, 2)
   // thread_worker example
   createBaseWorker({ workerData: 'worker world' }).on('message', (message) => {
     logger.log(`Message from worker: ${message}`)

@@ -30,7 +30,8 @@ module.exports = {
   rules: {
     'space-before-function-paren': 0,
     'vue/no-multiple-template-root': 0,
-    'import/no-absolute-path': 0
+    'import/no-absolute-path': 0,
+    'vue/script-setup-uses-vars': 0
   },
   ignorePatterns: [
     'node_modules/**',

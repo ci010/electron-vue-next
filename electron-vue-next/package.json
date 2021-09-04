@@ -24,9 +24,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "electron-updater": "^4.3.5",
-    "vue": "^3.0.6",
-    "vue-router": "^4.0.10",
+    "electron-updater": "^4.3.9",
+    "vue": "^3.2.8",
+    "vue-router": "^4.0.11",
     "vuex": "^4.0.2"
   },
   "external": [
@@ -34,27 +34,20 @@
     "fs-extra"
   ],
   "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.2",
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "@rollup/plugin-typescript": "^8.2.1",
-    "@vitejs/plugin-vue": "^1.2.3",
-    "@vue/compiler-sfc": "^3.0.8",
-    "builtin-modules": "^3.1.0",
+    "@vitejs/plugin-vue": "^1.6.0",
+    "@vue/compiler-sfc": "^3.2.8",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
-    "electron": "^13.1.2",
+    "electron": "^14.0.0",
     "electron-builder": "^22.11.7",
-    "esbuild": "^0.12.8",
+    "esbuild": "^0.12.25",
     "extract-zip": "^1.7.0",
     "fs-extra": "^9.0.1",
     "got": "^9.6.0",
     "magic-string": "^0.25.7",
-    "rollup": "^2.38.5",
     "tslib": "^1.14.1",
-    "typescript": "^4.1.2",
-    "vite": "^2.3.7"
+    "typescript": "^4.4.2",
+    "vite": "^2.5.1"
   },
   "optionalDependencies": {
     "@types/node": "^14.14.7",
@@ -66,6 +59,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.2",
-    "eslint-plugin-vue": "^7.1.0"
+    "eslint-plugin-vue": "^7.17.0"
   }
 }

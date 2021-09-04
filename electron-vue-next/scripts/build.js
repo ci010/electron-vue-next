@@ -1,74 +1,56 @@
-process.env.NODE_ENV = 'production'
-
-const { join } = require('path')
-const { build } = require('vite')
 const chalk = require('chalk')
 const { build: electronBuilder } = require('electron-builder')
-const { stat, remove, writeFile } = require('fs-extra')
-const { rollup } = require('rollup')
-const { loadRollupConfig } = require('./util')
+const { build: esbuild } = require('esbuild')
+const fsExtra = require('fs-extra')
+const path = require('path')
+const { build } = require('vite')
+const esbuildConfig = require('./esbuild.config')
+const config = require('./vite.config')
+
+const { remove, stat } = fsExtra
+
+process.env.NODE_ENV = 'production'
 
 /**
- * Generate the distribution version of package json
+ * Use esbuild to build main process
+ * @param {import('esbuild').BuildOptions} options
  */
-async function generatePackageJson() {
-  const original = require('../package.json')
-  const result = {
-    name: original.name,
-    author: original.author,
-    version: original.version,
-    license: original.license,
-    description: original.description,
-    main: './index.js',
-    dependencies: Object.entries(original.dependencies).filter(([name, version]) => original.external.indexOf(name) !== -1).reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {})
+async function buildMain(options) {
+  const result = await esbuild({
+    ...options,
+    sourceRoot: path.join(__dirname, '../src'),
+    entryPoints: [path.join(__dirname, '../src/main/index.dev.ts')]
+  })
+
+  if (!result.metafile) {
+    throw new Error('Unexpected rollup config to build!')
   }
-  await writeFile('dist/package.json', JSON.stringify(result))
-}
 
-/**
- * Print the rollup output
- * @param {import('rollup').RollupOutput} output
- */
-async function printOutput({ output }) {
-  for (const chunk of output) {
-    if (chunk.type === 'chunk') {
-      const filepath = join('dist', chunk.fileName)
-      const { size } = await stat(join(__dirname, '..', filepath))
+  /**
+   * Print the esbuild output
+ * @param {import('esbuild').Metafile} options
+   */
+  async function printOutput(options) {
+    for (const [file, chunk] of Object.entries(options.outputs)) {
+      // const filepath = join('dist', chunk.fileName)
+      // const { size } = await stat(join(__dirname, '..', filepath))
       console.log(
-        `${chalk.gray('[write]')} ${chalk.cyan(filepath)}  ${(
-          size / 1024
+        `${chalk.gray('[write]')} ${chalk.cyan(file)}  ${(
+          chunk.bytes / 1024
         ).toFixed(2)}kb`
       )
     }
   }
-}
-
-/**
- * Use rollup to build main process
- * @param {import('rollup').RollupOptions} config
- */
-async function buildMain(config) {
-  const input = {
-    index: join(__dirname, '../src/main/index.ts')
+  // console.log(result.metafile?.outputs)
+  if (result.metafile) {
+    await printOutput(result.metafile)
   }
-
-  const bundle = await rollup({
-    ...config,
-    input
-  })
-  if (!config.output) {
-    throw new Error('Unexpected rollup config to build!')
-  }
-
-  await printOutput(await bundle.write(config.output[0]))
 }
 
 /**
  * Use vite to build renderer process
  */
 function buildRenderer() {
-  const config = require('./vite.config')
-
   console.log(chalk.bold.underline('Build renderer process'))
 
   return build({
@@ -117,13 +99,11 @@ async function start() {
     }
   }
 
-  const [mainConfig] = await loadRollupConfig()
-
-  await remove(join(__dirname, '../dist'))
+  await remove(path.join(__dirname, '../dist'))
 
   console.log(chalk.bold.underline('Build main process & preload'))
   const startTime = Date.now()
-  await buildMain(mainConfig)
+  await buildMain(esbuildConfig)
   console.log(
     `Build completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s.\n`
   )
@@ -133,7 +113,7 @@ async function start() {
   if (process.env.BUILD_TARGET) {
     const config = loadElectronBuilderConfig()
     const dir = process.env.BUILD_TARGET === 'dir'
-    await generatePackageJson()
+    // await generatePackageJson()
     await buildElectron(config, dir)
   }
 }
