@@ -4,11 +4,11 @@ This repository contains the starter template for using vue-next with the latest
 
 *I started to learn electron & vue by the great project [electron-vue](https://github.com/SimulatedGREG/electron-vue). This project is also inspired from it.*
 
-*Holpfully, you generally learn how to use rollup & its plugin API from this project* :)
+*Holpfully, you generally learn how to use esbuild & its plugin API from this project* :)
 
 ## Features
 
-- Electron 11
+- Electron 14
   - Follow the [security](https://www.electronjs.org/docs/tutorial/security) guide of electron, make renderer process a browser only environment
   - Using [electron-builder](https://github.com/electron-userland/electron-builder) to build
 - Empower [vue-next](https://github.com/vuejs/vue-next) and its eco-system
@@ -17,8 +17,7 @@ This repository contains the starter template for using vue-next with the latest
   - Using [vue-router-next](https://github.com/vuejs/vue-router-next)
 - Using [eslint](https://www.npmjs.com/package/eslint) with Javascript Standard by default
 - Built-in TypeScript Support
-  - Using [esbuild](https://github.com/evanw/esbuild) in [rollup](https://github.com/rollup/rollup) (align with vite) to build main process typescript code
-  - Built-in a typescript rollup plugin to typecheck
+  - Using [esbuild](https://github.com/evanw/esbuild) (align with vite) to build main process typescript code
 - NodeJS `worker_threads` workflow out-of-box
   - Don't need to worry the worker threads bundle/build when you use it.
 - Preload scripts build workflow out-of-box
@@ -36,6 +35,11 @@ This repository contains the starter template for using vue-next with the latest
   - Run npm run postinstall to install extensions
   - Support vue-router-next and vuex 4 with new UI
 
+## Known Limitations
+
+- When you adding a native dependencies, like `lzma-native`, which need to recompile with electron, you need to add it name to `external` array in pacakge.json. Otherwise, the build will fail.... See the [section](#native-dependencies) for detail explaination.
+- When you adding the dependecies with pre-compiled binary, like `7zip-bin`, you also need to put it into `external` array in pacakge.json. See the [section](#dependencies-contains-compiled-binary) for detail explaination.
+- When you using a dependency using `__dirname` to locate something (most likely the precompiled file) in main process, you need to put them into external array.
 
 ## Quick Start
 
@@ -47,7 +51,7 @@ Once you're done, you can run following commands:
 # Install dependencies
 npm install
 
-# Will start vite server, rollup devserver, and electron to dev!
+# Will start vite server, esbuild devserver, and electron to dev!
 npm run dev
 
 # OPTIONAL. Will compile the main and renderer process to javascript and display output size
@@ -85,7 +89,7 @@ your-project
 │  │  ├─ workers/          multi-thread scripts using nodejs worker_threads
 │  │  ├─ dialog.ts         the ipc handler to support dialog API from renderer process
 │  │  ├─ global.ts         typescript global definition
-│  │  ├─ index.dev.ts      the development rollup entry
+│  │  ├─ index.dev.ts      the development main process entry
 │  │  ├─ index.ts          real electron start-up entry file
 │  │  └─ logger.ts         a simple logger implementation
 │  ├─ preload
@@ -94,7 +98,7 @@ your-project
 │  ├─ renderer
 │  │  ├─ assets/           assets directoy
 │  │  ├─ components/       all vue components
-│  │  ├─ hooks/            hooks or composition API
+│  │  ├─ composables/      vue composables API
 │  │  ├─ router.ts         vue-router initializer
 │  │  ├─ store.ts          vuex store initializer
 │  │  ├─ App.vue           entry vue file imported by index.ts
@@ -113,7 +117,7 @@ your-project
 
 #### assets, static resources, build resources... what's the difference?
 
-The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/rollup**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/src/renderer/assets)
+The assets is only used by the renderer process (in-browser display), like picture or font. They are **bundled by vite/esbuild**. You can directly `import` them in `.vue/.ts` files under renderer directory. The default assets are in [renderer/renderer/assets](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/src/renderer/assets)
 
 The static resources are the static files which main process wants to access (like read file content) in **runtime vie file system**. They might be the tray icon file, browser window icon file. The static folder is at [static](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/static).
 
@@ -152,7 +156,7 @@ It's the bridge between the main and renderer. You can look at [Service](#servic
 #### `npm run dev`
 
 Start the vite dev server hosting the renderer webpage with hot reloading.
-Start the rollup server hosting the main process script. It will auto reload the electron app if you modify the source files.
+Start the esbuild server hosting the main process script. It will auto reload the electron app if you modify the source files.
 
 #### `npm run build`
 
@@ -256,7 +260,7 @@ Here is an example in [About.vue](), using the `BaseService`.
 
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
-import { useService } from '../hooks'
+import { useService } from '../composables'
 
 export default defineComponent({
   setup() {
@@ -299,7 +303,7 @@ For example, we have a `logo.png` in static folder, and we want to get it path i
 import logoPath from '/@static/logo.png' // this is the absolute path of the logo
 ```
 
-The plugin manage this is the `scripts/rollup.static.plugin.js`.
+The plugin manage this is the `scripts/esbuild.static.plugin.js`.
 
 ### Preload Script
 
@@ -325,17 +329,17 @@ new BrowserWindow({
 })
 ```
 
-The rollup config of preload is located at the `rollup.config.js`.
+The esbuild config of preload is located at the `esbuild.config.js`.
 
 The preload script in `dist` will be built like `dist/<name>.preload.js`.
 
-The plugin manage this process is located at `scripts/rollup.preload.plugin.js`.
+The plugin manage this process is located at `scripts/esbuild.preload.plugin.js`.
 
-### Hooks or Composable in Renderer Process
+### Composable in Renderer Process
 
-One great feature of vue 3 is the [composition-api](https://v3.vuejs.org/api/composition-api.html). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `hooks` are placed in `/src/renderer/hooks` by default.
+One great feature of vue 3 is the [composition-api](https://v3.vuejs.org/api/composition-api.html). You can write up some basic piece of logic and compose them up during the setup functions. Currently, these `composables` are placed in `/src/renderer/composables` by default.
 
-Take the example from vue composition api site, you have such code in `/src/renderer/hooks/mouse.ts`
+Take the example from vue composition api site, you have such code in `/src/renderer/composables/mouse.ts`
 
 ```ts
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -361,7 +365,7 @@ export function useMousePosition() {
 }
 ```
 
-You'd better to export this `mouse.ts` to `/src/renderer/hooks/index.ts`
+You'd better to export this `mouse.ts` to `/src/renderer/composables/index.ts`
 
 ```ts
 // other exports...
@@ -369,7 +373,7 @@ You'd better to export this `mouse.ts` to `/src/renderer/hooks/index.ts`
 export * from './mouse.ts'
 ```
 
-Then in the `vue` file you can import all hooks by the alias path
+Then in the `vue` file you can import all composables by the alias path
 
 ```vue
 <template>
@@ -377,7 +381,7 @@ Then in the `vue` file you can import all hooks by the alias path
 </template>
 <script lang=ts>
 import { defineComponent } from 'vue'
-import { useMousePosition } from '/@/hooks'
+import { useMousePosition } from '/@/composables'
 
 export default defineComponent({
   setup() {
@@ -396,7 +400,7 @@ The boilplate exposes several electron APIs by default. You can access them by `
 
 ```ts
 import { defineComponent } from 'vue'
-import { useShell } from '/@/hooks'
+import { useShell } from '/@/composables'
 
 export default defineComponent({
   setup() {
@@ -467,7 +471,7 @@ function createANewWindow() {
 
 ```
 
-The `scripts/vite.config.js` will automatically scan all html files under the `src/renderer`. So, you do not need to touch the any vite/rollup config files.
+The `scripts/vite.config.js` will automatically scan all html files under the `src/renderer`. So, you do not need to touch the any vite/esbuild config files.
 But, if you want more customization, you can refer the [official vite document](https://vitejs.dev/guide/build.html#multi-page-app) about the multi-page app!
 
 ### Worker Threads
@@ -486,7 +490,7 @@ import { Worker } from 'worker_threads'
 const worker: Worker = createSha256Worker(/* options */)
 ```
 
-The worker thread files are built together with the normal main process code. They are under the same config in `rollup.config.js`.
+The worker thread files are built together with the normal main process code. They are under the same config in `esbuild.config.js`.
 
 In `dist`, The worker script will be compiled as `dist/<name>.worker.js`.
 
@@ -565,9 +569,15 @@ The project build is based on [electron-builder](https://github.com/electron-use
 
 ### Compile
 
-The project will compile typescript/vue source code by rollup into javascript production code. The rollup config for main process is in [rollup.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/rollup.config.js). It will output the production code to `dist/index.js`.
+The project will compile typescript/vue source code by esbuild into javascript production code. The esbuild config for main process is in [esbuild.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/esbuild.config.js). It will output the production code to `dist/index.js`.
 
-Notice that by default, this project's rollup config won't bundle the nodejs dependencies used in main process. As the rollup is based on esm, it has a hard time to resolve some circular dependencies problems, which can happen frequently in some nodejs package (e.g. electron-updater, Webpack can handle these kind of problem though). Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.js`.
+Notice that by default, this project's esbuild config **WILL** bundle the nodejs dependencies used in main process.
+
+As the esbuild does not handle the `__dirname` and `import.meta.url`, it has the problem with the library using that. See [#859](https://github.com/evanw/esbuild/issues/859) and [#1492](https://github.com/evanw/esbuild/issues/1492) in esbuild repo. When you using such library, you need to add them to external to package json.
+
+Like 7zip-bin which using `__dirname` to locate the binary location.
+
+Once you put them into the `external` in `package.json`, they will be packed in the `node_modules` in output asar. Just let you know that this is not like webpack, bundling them into your `index.js`.
 
 The config to compile renderer process is in [vite.config.js](https://github.com/ci010/electron-vue-next/tree/master/electron-vue-next/scripts/vite.config.js). It will compile the production code into `dist/renderer/*`.
 

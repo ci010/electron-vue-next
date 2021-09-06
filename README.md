@@ -10,7 +10,7 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
 
 ## Features
 
-- Electron 11
+- Electron 14
   - Follow the [security](https://www.electronjs.org/docs/tutorial/security) guide of electron, make renderer process a browser only environment
   - Using [electron-builder](https://github.com/electron-userland/electron-builder) to build
 - Empower [vue-next](https://github.com/vuejs/vue-next) and its eco-system
@@ -19,7 +19,7 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
   - Using [vue-router-next](https://github.com/vuejs/vue-router-next)
 - Using [eslint](https://www.npmjs.com/package/eslint) with Javascript Standard by default
 - Built-in TypeScript Support
-  - Using [esbuild](https://github.com/evanw/esbuild) in [rollup](https://github.com/rollup/rollup) (align with vite) to build main process typescript code 
+  - Using [esbuild](https://github.com/evanw/esbuild) (align with vite) to build main process typescript code 
 - Github Action with Github Release is out-of-box
   - Auto bump version in package.json and generate CHANGELOG.md if you follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0)
   - Detail how this work described in [Release Process](#release-process) section
@@ -31,6 +31,12 @@ You can see the document [here](https://ci010.github.io/electron-vue-next/index.
 - [vue-devtool](https://github.com/vuejs/vue-devtools) support
   - Run npm run postinstall to install extensions
   - Support vue-router-next and vuex 4 with new UI
+
+## Known Limitations
+
+- When you adding a native dependencies, like `lzma-native`, which need to recompile with electron, you need to add it name to `external` array in pacakge.json. Otherwise, the build will fail.... See the [section](#native-dependencies) for detail explaination.
+- When you adding the dependecies with pre-compiled binary, like `7zip-bin`, you also need to put it into `external` array in pacakge.json. See the [section](#dependencies-contains-compiled-binary) for detail explaination.
+- When you using a dependency using `__dirname` to locate something (most likely the precompiled file) in main process, you need to put them into external array.
 
 
 ## Getting Started

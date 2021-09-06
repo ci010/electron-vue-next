@@ -7,7 +7,7 @@
 *希望你在使用这个模板的时候能够逐渐熟悉 rollup 和它的 API* :)
 ## 特性清单
 
-- Electron 11
+- Electron 14
   - 遵从 [ 安全性，原生能力和你的责任 ](https://www.electronjs.org/docs/tutorial/security) 这篇文章的指导，将 renderer 进程配置为纯“浏览器环境”（没有 node 环境）
   - 使用 [electron-builder](https://github.com/electron-userland/electron-builder) 来构建项目
 - 跟随 [vue-next](https://github.com/vuejs/vue-next) 的新生态
@@ -33,6 +33,12 @@
 - Vue Devtools 开箱即用
   - 通过 npm run postinstall 来确保 devtools 的安装
   - 支持新的 vue-router-next 和 vuex 4
+
+## 目前已知的一些限制
+
+- 添加 native (指的是需要重新编译到二进制的，如lzma-native) 依赖的时候需要在 package.json 中的 external 数组里添加这个依赖，不然打包之后会出问题……详细解释请看[这个章节](#原生-native-依赖)
+- 添加自带编译好二进制的依赖，同样需要添加到 package.json 中的 external 数组中，不然打包出问题……详细解释请看[这个章节](#自带二进制的依赖)
+- 如果你在 main 里面用一个用了 `__dirname` 的依赖，那你同样需要把他放到 `external` 中，因为 esbuild 不能正确处理 `__dirname`。
 
 ## 上手指南
 
@@ -93,7 +99,7 @@ your-project
 │  ├─ renderer
 │  │  ├─ assets/           assets 文件夹
 │  │  ├─ components/       所有 vue components
-│  │  ├─ hooks/            钩子函数或组合式 API
+│  │  ├─ composables/      组合式 API
 │  │  ├─ router.ts         vue-router 初始代码
 │  │  ├─ store.ts          vuex 初始代码
 │  │  ├─ App.vue           Vue 文件的入口文件，被 index.ts 导入
@@ -256,7 +262,7 @@ export default class BarService extends Service {
 
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
-import { useService } from '../hooks'
+import { useService } from '../composables'
 
 export default defineComponent({
   setup() {
@@ -330,11 +336,11 @@ preload 的 rollup 配置同样放置在 `rollup.config.js` 中。
 
 管理以上行为的插件放置于 `scripts/rollup.preload.plugin.js`。
 
-### 在渲染进程中使用 Hooks (Composable)
+### 在渲染进程中使用 Composable
 
-Vue 3 的一大特性就是 [组合式 API](https://v3.cn.vuejs.org/api/composition-api.html)。你可以通过组合模式，将各种简单逻辑在 `setup` 函数中拼装出复杂的业务逻辑。这些组合函数都默认放在 `/src/renderer/hooks` 中。
+Vue 3 的一大特性就是 [组合式 API](https://v3.cn.vuejs.org/api/composition-api.html)。你可以通过组合模式，将各种简单逻辑在 `setup` 函数中拼装出复杂的业务逻辑。这些组合函数都默认放在 `/src/renderer/composables` 中。
 
-下面就是官方文档中的例子，你在 `/src/renderer/hooks/mouse.ts` 里有以下代码：
+下面就是官方文档中的例子，你在 `/src/renderer/composables/mouse.ts` 里有以下代码：
 
 ```ts
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -360,7 +366,7 @@ export function useMousePosition() {
 }
 ```
 
-你可以把 `mouse.ts` 在 `/src/renderer/hooks/index.ts` 中导出：
+你可以把 `mouse.ts` 在 `/src/renderer/composables/index.ts` 中导出：
 
 ```ts
 // 其他导出...
@@ -376,7 +382,7 @@ export * from './mouse.ts'
 </template>
 <script lang=ts>
 import { defineComponent } from 'vue'
-import { useMousePosition } from '/@/hooks'
+import { useMousePosition } from '/@/composables'
 
 export default defineComponent({
   setup() {
@@ -396,7 +402,7 @@ export default defineComponent({
 
 ```ts
 import { defineComponent } from 'vue'
-import { useShell } from '/@/hooks'
+import { useShell } from '/@/composables'
 
 export default defineComponent({
   setup() {
