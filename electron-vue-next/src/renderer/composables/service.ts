@@ -8,8 +8,8 @@ function createProxy(service: string) {
   return new Proxy({} as any, {
     get(_, functionName) {
       return (...payloads: any[]) => {
-        const rawPayloads = payloads.map(e => toRaw(e));
-        return invoke('service:call', service, functionName as string, ...rawPayloads);
+        const rawPayloads = payloads.map(e => toRaw(e))
+        return invoke('service:call', service, functionName as string, ...rawPayloads)
       }
     }
   })

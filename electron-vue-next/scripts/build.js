@@ -11,6 +11,19 @@ const { remove, stat } = fsExtra
 
 process.env.NODE_ENV = 'production'
 
+async function generatePackageJson() {
+  const original = require('../package.json')
+  const result = {
+    name: original.name,
+    author: original.author,
+    version: original.version,
+    license: original.license,
+    description: original.description,
+    main: './index.js',
+    dependencies: Object.entries(original.dependencies).filter(([name, version]) => original.external.indexOf(name) !== -1).reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {})
+  }
+  await fsExtra.writeFile('dist/package.json', JSON.stringify(result))
+}
 /**
  * Use esbuild to build main process
  * @param {import('esbuild').BuildOptions} options
@@ -18,8 +31,7 @@ process.env.NODE_ENV = 'production'
 async function buildMain(options) {
   const result = await esbuild({
     ...options,
-    sourceRoot: path.join(__dirname, '../src'),
-    entryPoints: [path.join(__dirname, '../src/main/index.dev.ts')]
+    entryPoints: [path.join(__dirname, '../src/main/index.ts')]
   })
 
   if (!result.metafile) {
@@ -32,8 +44,6 @@ async function buildMain(options) {
    */
   async function printOutput(options) {
     for (const [file, chunk] of Object.entries(options.outputs)) {
-      // const filepath = join('dist', chunk.fileName)
-      // const { size } = await stat(join(__dirname, '..', filepath))
       console.log(
         `${chalk.gray('[write]')} ${chalk.cyan(file)}  ${(
           chunk.bytes / 1024
@@ -41,7 +51,6 @@ async function buildMain(options) {
       )
     }
   }
-  // console.log(result.metafile?.outputs)
   if (result.metafile) {
     await printOutput(result.metafile)
   }
@@ -113,7 +122,7 @@ async function start() {
   if (process.env.BUILD_TARGET) {
     const config = loadElectronBuilderConfig()
     const dir = process.env.BUILD_TARGET === 'dir'
-    // await generatePackageJson()
+    await generatePackageJson()
     await buildElectron(config, dir)
   }
 }

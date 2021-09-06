@@ -12,7 +12,7 @@ import Navigator from '/@/components/HomeNavigator.vue'
 export default defineComponent({
   components: {
     Navigator
-  },
+  }
 })
 </script>
 

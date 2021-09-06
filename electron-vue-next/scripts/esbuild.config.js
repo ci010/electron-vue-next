@@ -4,6 +4,7 @@ const pluginRenedrer = require('./plugins/esbuild.renderer.plugin')
 const pluginStatic = require('./plugins/esbuild.static.plugin')
 const pluginWorker = require('./plugins/esbuild.worker.plugin')
 const pluginVueDevtools = require('./plugins/esbuild.devtool.plugin')
+const { external } = require('../package.json')
 
 /**
  * @type {import('esbuild').BuildOptions}
@@ -15,6 +16,8 @@ const config = {
   entryNames: '[dir]/[name]',
   format: 'cjs',
   outdir: path.join(__dirname, '../dist'),
+  sourcemap: 'inline',
+  // sourceRoot: path.join(__dirname, '../src'),
   platform: 'node',
   loader: {
     '.png': 'file',
@@ -30,7 +33,7 @@ const config = {
     pluginVueDevtools(path.join(__dirname, '../extensions')),
     pluginWorker()
   ],
-  external: ['electron']
+  external: ['electron', ...external]
 }
 
 module.exports = config

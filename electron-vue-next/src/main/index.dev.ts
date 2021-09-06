@@ -1,5 +1,4 @@
-import { app, BrowserWindow } from 'electron'
-import { Socket } from 'net'
+import { app } from 'electron'
 // @ts-ignore
 import extensions from 'vue-devtools'
 // eslint-disable-next-line import/first
@@ -14,9 +13,4 @@ app.on('browser-window-created', (event, window) => {
         console.error(e)
       })
   }
-})
-
-const devServer = new Socket({}).connect(3031, '127.0.0.1')
-devServer.on('data', () => {
-  BrowserWindow.getAllWindows().forEach(w => w.reload())
 })

@@ -1,5 +1,5 @@
-import { Module } from "vuex"
-import { RootState } from ".."
+import { Module } from 'vuex'
+import { RootState } from '..'
 
 export interface State {
   count: number

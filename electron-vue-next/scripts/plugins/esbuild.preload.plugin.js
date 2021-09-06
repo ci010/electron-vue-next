@@ -26,19 +26,22 @@ module.exports = function createPreloadPlugin(preloadSrc) {
           write: true,
           outdir: build.initialOptions.outdir,
           platform: 'node',
-          external: build.initialOptions.external
+          external: build.initialOptions.external,
+          sourceRoot: build.initialOptions.sourceRoot,
+          sourcemap: 'inline',
+          format: build.initialOptions.format
         })
         const resultFile = Object.keys(result.metafile?.outputs || {})[0]
         const relativePath = relative('dist', resultFile)
         const watching = Object.keys(result.metafile?.inputs || {})
-        const outFile = join(dirname(build.initialOptions.outdir || ''), Object.keys(result.metafile?.outputs || {})[0])
+        const outFile = join(dirname(build.initialOptions.outdir || ''), Object.keys(result.metafile?.outputs || {}).filter(f => f.endsWith('.js'))[0])
         return {
           errors: result.errors,
           warnings: result.warnings,
           contents: build.initialOptions.watch
             ? `export default ${JSON.stringify(outFile)}`
             : `import { join } from 'path'; export default join(__dirname, ${JSON.stringify(relativePath)})`,
-          watchFiles: watching
+          watchFiles: build.initialOptions.watch ? watching : undefined
         }
       })
     }
